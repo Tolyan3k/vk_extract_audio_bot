@@ -21,13 +21,14 @@ def process_msg(msg):
 
     videos = VkMesasgeService.get_videos_from_message(msg)
 
-    if len(videos) == 0:
+    if not len(videos):
         __init__.vk_main_group_api_session.get_api().messages.send(
             message= 'Не удалось найти видео в сообщении',
             reply_to= msg['id'],
             user_id= msg['peer_id'],
             random_id= random.randint(0, 1 << 31),
         )
+        return
     
     vk_audio_content_ids = []
     vk_unsupported_videos_count = 0
@@ -94,6 +95,7 @@ while msg:
         process_msg(msg)
     except Exception as error:
         pprint(error)
+        __init__.error_message_ids += [msg["id"]]
         print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
     __init__.last_answered_msg_id.set_value(msg['id'])
 
@@ -112,6 +114,7 @@ for event in __init__.vk_bot_longpoll.listen():
             process_msg(msg)
         except Exception as error:
             pprint(error)
+            __init__.error_message_ids += [msg["id"]]
             print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
         __init__.last_answered_msg_id.set_value(msg['id'])
         print('Обработал письмо с id = ' + str(event.message.id))

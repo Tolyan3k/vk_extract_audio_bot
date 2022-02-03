@@ -38,3 +38,11 @@ last_answered_msg_id = MongoVariable(
     object_id='61f19338336dd428c6492db6',
     var_name='last_answered_message_id'
 )
+
+error_message_ids = MongoVariable(
+    mongo_client=pymongo.MongoClient(config.MONGODB_URI, connect=True),
+    database_name='main',
+    collection_name='env',
+    object_id='61f19338336dd428c6492db6',
+    var_name='error_message_ids'
+)
