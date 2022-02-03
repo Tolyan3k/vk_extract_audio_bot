@@ -33,12 +33,12 @@ def process_msg(msg):
     vk_unsupported_videos_count = 0
     for video in videos:
         player_link = ""
+
+        if video.get("converting") or not video.get("duration") or video.get("duration") > 600:
+            vk_unsupported_videos_count += 1
+            continue
         
         if not video.get('platform'):
-            if video.get('converting') \
-                or not video.get('duration') or 5 >= video['duration'] <= 600:
-                vk_unsupported_videos_count += 1
-
             player_link = __init__.vk_user_session.get_api().video.get(
                 owner_id= video['owner_id'],
                 videos= f"{video['owner_id']}_{video['id']}_{video['access_key']}",
@@ -46,12 +46,14 @@ def process_msg(msg):
 
         elif video.get('platform') == VkVideoPlatform.YOUTUBE:
             vk_unsupported_videos_count += 1
+            continue
         else:
             vk_unsupported_videos_count += 1
+            continue
 
         video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(5, 600, 500))
-        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(3))
+        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, 500))
+        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(4))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
             title=video_info.title,
@@ -69,11 +71,11 @@ def process_msg(msg):
         if len(vk_audio_content_ids) and vk_unsupported_videos_count:
             msg_text = "К сожалению, в аудио удалось сконвертировать только часть видео" \
                 + ", т.к. на данный момент бот поддерживает только видео ВКонтакте.\n" \
-                + "Также бот пока может конвертировать видео длиною от 5 секунд до 10 минут."
+                + "Также бот пока может конвертировать видео длиною до 10 минут."
         elif not len(vk_audio_content_ids):
             msg_text = "К сожалению, боту не удалось сконвертировать в аудио ни одно видео.\n" \
                 + "Это может быть связяно с тем, что платформы этих видео сейчас не поддерживаются ботом, либо " \
-                + "длина видео выходит за рамки длины: от 5 секунд до 10 минут."
+                + "длина видео выходит за рамки длины: до 10 минут."
 
     __init__.vk_main_group_api_session.get_api().messages.send(
         message= msg_text,
