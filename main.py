@@ -38,13 +38,12 @@ def process_msg(msg):
             vk_unsupported_videos_count += 1
             continue
         
-        if not video.get('platform'):
+        if video.get('platform') == VkVideoPlatform.VK.value:
             player_link = __init__.vk_user_session.get_api().video.get(
                 owner_id= video['owner_id'],
                 videos= f"{video['owner_id']}_{video['id']}_{video['access_key']}",
             )['items'][0]['player']
-
-        elif video.get('platform') == VkVideoPlatform.YOUTUBE:
+        elif video.get('platform') == VkVideoPlatform.YOUTUBE.value:
             vk_unsupported_videos_count += 1
             continue
         else:
@@ -53,7 +52,7 @@ def process_msg(msg):
 
         video_info = VideoService.get_video_info(player_link)
         video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, 500))
-        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(4))
+        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
             title=video_info.title,
