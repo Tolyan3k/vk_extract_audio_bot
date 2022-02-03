@@ -1,9 +1,10 @@
-from pprint import pprint
 from vk_api.bot_longpoll import VkBotEventType
+from pprint import pprint
 import random
 import os
 
 from bot_enums.VkVideoPlatform import VkVideoPlatform
+from bot_types.AudioConvertSettings import AudioConvertSettings
 from bot_types.VideoDownloadSettings import VideoDownloadSetting
 from services.ConverterService import ConverterService
 from services.VkMessageService import VkMesasgeService
@@ -50,7 +51,7 @@ def process_msg(msg):
 
         video_info = VideoService.get_video_info(player_link)
         video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(5, 600, 500))
-        audio_file_name = ConverterService.convert_video_to_audio(video_file_name)
+        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(3))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
             title=video_info.title,
