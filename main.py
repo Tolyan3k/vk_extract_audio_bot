@@ -108,7 +108,11 @@ for event in __init__.vk_bot_longpoll.listen():
     if event.type == VkBotEventType.MESSAGE_NEW:
         msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, event.message.id)
         print('Получил письмо с id = ' + str(event.message.id))
-        process_msg(msg)
+        try:
+            process_msg(msg)
+        except Exception as error:
+            pprint(error)
+            print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
         __init__.last_answered_msg_id.set_value(msg['id'])
         print('Обработал письмо с id = ' + str(event.message.id))
         print('Значение id последнего отвеченого сообщения = ' + str(__init__.last_answered_msg_id))
