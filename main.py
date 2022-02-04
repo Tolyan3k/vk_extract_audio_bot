@@ -40,14 +40,12 @@ def process_msg(msg):
             vk_unsupported_videos_count += 1
             continue
         
-        if video.get('platform') == VkVideoPlatform.VK.value:
-            player_link = __init__.vk_user_session.get_api().video.get(
-                owner_id= video['owner_id'],
-                videos= f"{video['owner_id']}_{video['id']}_{video['access_key']}",
-            )['items'][0]['player']
-        elif video.get('platform') == VkVideoPlatform.YOUTUBE.value:
-            vk_unsupported_videos_count += 1
-            continue
+        if video.get('platform') == VkVideoPlatform.VK.value \
+            or video.get('platform') == VkVideoPlatform.YOUTUBE.value:
+                player_link = __init__.vk_user_session.get_api().video.get(
+                    owner_id= video['owner_id'],
+                    videos= f"{video['owner_id']}_{video['id']}_{video['access_key']}",
+                )['items'][0]['player']
         else:
             vk_unsupported_videos_count += 1
             continue

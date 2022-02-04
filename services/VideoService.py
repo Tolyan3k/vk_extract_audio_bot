@@ -1,11 +1,9 @@
-from youtube_dl import YoutubeDL
 from typing import Optional
-import re
+import yt_dlp
 
 from bot_types.VideoDownloadSettings import VideoDownloadSettings
 from bot_types.VideoPlatform import VideoPlatform
 from bot_types.VideoInfo import VideoInfo
-from __init__ import vk_user_session
 import config
 
 class VideoService(object):
@@ -14,12 +12,14 @@ class VideoService(object):
         platform = None
         #Если yotube_dl не выкинет исключение, то можно узнать платформу по экстрактору
         try:
-            with YoutubeDL({}) as ydl:
+            with yt_dlp.YoutubeDL({}) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
 
                 #Пока будет распозновать только видосы из ВК
                 if info_dict['extractor'] == "vk":
                     platform = VideoPlatform.VK
+                elif info_dict['extractor'] == 'youtube':
+                    platform = VideoPlatform.YOUTUBE
                 else:
                     platform = VideoPlatform.OTHER
         except:
@@ -47,7 +47,16 @@ class VideoService(object):
                 'outtmpl': config.DIRS['videos'] + f'/{download_settings.file_name}.mp4',
             }
 
-            with YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([link])
+        elif video_info.platform == VideoPlatform.YOUTUBE \
+            and download_settings.min_duration <= video_info.duration <= download_settings.max_duration:
+            ydl_opts = {
+                'format' : 'best',
+                'outtmpl': config.DIRS['videos'] + f'/{download_settings.file_name}.mp4',
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([link])
         else:
             return None
