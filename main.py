@@ -5,7 +5,7 @@ import os
 
 from bot_enums.VkVideoPlatform import VkVideoPlatform
 from bot_types.AudioConvertSettings import AudioConvertSettings
-from bot_types.VideoDownloadSettings import VideoDownloadSetting
+from bot_types.VideoDownloadSettings import VideoDownloadSettings
 from services.ConverterService import ConverterService
 from services.VkMessageService import VkMesasgeService
 from services.VkAudioService import VkAudioService
@@ -36,7 +36,7 @@ def process_msg(msg):
     for video in videos:
         player_link = ""
 
-        if video.get("converting") or not video.get("duration") or video.get("duration") > 600:
+        if video.get("converting") or video.get("duration") == None or video.get("duration") > 600:
             vk_unsupported_videos_count += 1
             continue
         
@@ -51,9 +51,9 @@ def process_msg(msg):
         else:
             vk_unsupported_videos_count += 1
             continue
-
+        
         video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, None, f"{msg['id']}_{video_id}"))
+        video_file_name = VideoService.download_video(player_link, VideoDownloadSettings(0, 600, None, f"{msg['id']}_{video_id}"))
         audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
@@ -99,6 +99,11 @@ while msg:
         pprint(error)
         __init__.error_message_ids += [msg["id"]]
         print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
+    finally:
+        for dir in config.DIRS:
+            for root, dirs, files in os.walk(dir):
+                for file in files:
+                    os.remove(os.path.join(root, file))
     __init__.last_answered_msg_id.set_value(msg['id'])
 
     msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, __init__.last_answered_msg_id + 1)
@@ -118,6 +123,11 @@ for event in __init__.vk_bot_longpoll.listen():
             pprint(error)
             __init__.error_message_ids += [msg["id"]]
             print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
+        finally:
+            for dir in config.DIRS:
+                for root, dirs, files in os.walk(dir):
+                    for file in files:
+                        os.remove(os.path.join(root, file))
         __init__.last_answered_msg_id.set_value(msg['id'])
         print('Обработал письмо с id = ' + str(event.message.id))
         print('Значение id последнего отвеченого сообщения = ' + str(__init__.last_answered_msg_id))

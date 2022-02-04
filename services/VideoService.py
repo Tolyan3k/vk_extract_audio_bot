@@ -2,7 +2,7 @@ from youtube_dl import YoutubeDL
 from typing import Optional
 import re
 
-from bot_types.VideoDownloadSettings import VideoDownloadSetting
+from bot_types.VideoDownloadSettings import VideoDownloadSettings
 from bot_types.VideoPlatform import VideoPlatform
 from bot_types.VideoInfo import VideoInfo
 from __init__ import vk_user_session
@@ -37,7 +37,7 @@ class VideoService(object):
         )
 
     @staticmethod
-    def download_video(link: str, download_settings: VideoDownloadSetting) -> Optional[str]:
+    def download_video(link: str, download_settings: VideoDownloadSettings) -> Optional[str]:
         video_info = VideoService.get_video_info(link)
 
         if video_info.platform == VideoPlatform.VK \
@@ -52,5 +52,4 @@ class VideoService(object):
         else:
             return None
 
-        #return f"{{{video_info.title}}}_{{{video_info.author}}}.mp4"
         return f'{download_settings.file_name}.mp4'

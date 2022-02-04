@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class VideoDownloadSetting:
+class VideoDownloadSettings:
     min_duration: int
     max_duration: int
 

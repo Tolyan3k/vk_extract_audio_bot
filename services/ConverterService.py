@@ -12,6 +12,7 @@ class ConverterService(object):
             try:
                 with moviepy.editor.VideoFileClip(DIRS['videos'] + '/' + video_file_name) as video_clip:
                     audio_clip = video_clip.audio
+                    audio_clip_fps = audio_clip.fps
 
                     if audio_clip.duration < audio_convert_settings.min_duration:
                         silence = AudioClip(
@@ -20,7 +21,6 @@ class ConverterService(object):
                             fps=audio_clip.fps
                         )
                         
-                        audio_clip_fps = audio_clip.fps
                         audio_clip = CompositeAudioClip([audio_clip, silence])
 
                     audio_clip.write_audiofile(DIRS['audios'] + '/' + video_file_name[:-3] + 'mp3', audio_clip_fps)
