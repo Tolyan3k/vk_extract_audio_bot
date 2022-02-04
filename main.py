@@ -52,15 +52,19 @@ def process_msg(msg):
             vk_unsupported_videos_count += 1
             continue
         
-        video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSettings(0, 600, None, f"{msg['id']}_{video_id}"))
-        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
-        audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
-            artist=video_info.author,
-            title=video_info.title,
-        ))
-        os.remove(config.DIRS['videos'] + f'/{video_file_name}')
-        os.remove(config.DIRS['audios'] + f'/{audio_file_name}')
+        try:
+            video_info = VideoService.get_video_info(player_link)
+            video_file_name = VideoService.download_video(player_link, VideoDownloadSettings(0, 600, None, f"{msg['id']}_{video_id}"))
+            audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
+            audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
+                artist=video_info.author,
+                title=video_info.title,
+            ))
+        finally:
+            if os.path.exists(config.DIRS['videos'] + f'/{video_file_name}'):
+                os.remove(config.DIRS['videos'] + f'/{video_file_name}')
+            if os.path.exists(config.DIRS['audios'] + f'/{audio_file_name}'):
+                os.remove(config.DIRS['audios'] + f'/{audio_file_name}')
 
         archive_group_content_id = VkAudioService.add_audio(audio_content_id, config.VK_ARCHIVE_GROUP_ID)
         VkAudioService.delete_audio(audio_content_id)
@@ -99,11 +103,6 @@ while msg:
         pprint(error)
         __init__.error_message_ids += [msg["id"]]
         print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
-    finally:
-        for dir in config.DIRS:
-            for root, dirs, files in os.walk(dir):
-                for file in files:
-                    os.remove(os.path.join(root, file))
     __init__.last_answered_msg_id.set_value(msg['id'])
 
     msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, __init__.last_answered_msg_id + 1)
@@ -123,11 +122,6 @@ for event in __init__.vk_bot_longpoll.listen():
             pprint(error)
             __init__.error_message_ids += [msg["id"]]
             print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
-        finally:
-            for dir in config.DIRS:
-                for root, dirs, files in os.walk(dir):
-                    for file in files:
-                        os.remove(os.path.join(root, file))
         __init__.last_answered_msg_id.set_value(msg['id'])
         print('Обработал письмо с id = ' + str(event.message.id))
         print('Значение id последнего отвеченого сообщения = ' + str(__init__.last_answered_msg_id))
