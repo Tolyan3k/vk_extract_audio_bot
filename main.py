@@ -52,7 +52,7 @@ def process_msg(msg):
             continue
 
         video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, 500))
+        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, None))
         audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
@@ -69,7 +69,7 @@ def process_msg(msg):
     msg_text = ""
     if len(videos):
         if len(vk_audio_content_ids) and vk_unsupported_videos_count:
-            msg_text = "К сожалению, в аудио удалось сконвертировать только часть видео" \
+            msg_text = "К сожалению, в аудио удалось сконвертировать не все видео" \
                 + ", т.к. на данный момент бот поддерживает только видео ВКонтакте.\n" \
                 + "Также бот пока может конвертировать видео длиною до 10 минут."
         elif not len(vk_audio_content_ids):
