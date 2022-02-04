@@ -32,6 +32,7 @@ def process_msg(msg):
     
     vk_audio_content_ids = []
     vk_unsupported_videos_count = 0
+    video_id = 0
     for video in videos:
         player_link = ""
 
@@ -52,7 +53,7 @@ def process_msg(msg):
             continue
 
         video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, None))
+        video_file_name = VideoService.download_video(player_link, VideoDownloadSetting(0, 600, None, f"{msg['id']}_{video_id}"))
         audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
@@ -65,6 +66,7 @@ def process_msg(msg):
         VkAudioService.delete_audio(audio_content_id)
 
         vk_audio_content_ids.append(archive_group_content_id)
+        video_id += 1
     
     msg_text = ""
     if len(videos):
