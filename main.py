@@ -16,7 +16,9 @@ import config
 
 
 def process_msg(msg):
-    if msg['from_id'] == -int(config.VK_MAIN_GROUP_ID):
+    if msg is None:
+        return
+    elif msg['from_id'] == -int(config.VK_MAIN_GROUP_ID):
         return
 
     videos = VkMesasgeService.get_videos_from_message(msg)
@@ -100,13 +102,12 @@ get_last_unanswered_msg_id = lambda: __init__.vk_main_group_api_session.get_api(
 while __init__.last_answered_msg_id != get_last_unanswered_msg_id():
     for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1, get_last_unanswered_msg_id() + 1):
         msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, msg_id)
-        if msg:
-            try:
-                process_msg(msg)
-            except Exception as error:
-                pprint(error)
-                __init__.error_message_ids += [msg_id]
-                print(f"Не удалось обработать сообщение с id = {msg_id}. Перехожу к следующему сообщению.")
+        try:
+            process_msg(msg)
+        except Exception as error:
+            pprint(error)
+            __init__.error_message_ids += [msg_id]
+            print(f"Не удалось обработать сообщение с id = {msg_id}. Перехожу к следующему сообщению.")
 
         __init__.last_answered_msg_id.set_value(msg_id)
 
@@ -117,14 +118,14 @@ print('Закончил проверять неотвеченные сообще
 print('Начинаю получать сообщения через лонгполл')
 for event in __init__.vk_bot_longpoll.listen():
     if event.type == VkBotEventType.MESSAGE_NEW:
-        msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, event.message.id)
         print('Получил письмо с id = ' + str(event.message.id))
+        msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, event.message.id)
         try:
             process_msg(msg)
         except Exception as error:
             pprint(error)
-            __init__.error_message_ids += [msg["id"]]
-            print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
-        __init__.last_answered_msg_id.set_value(msg['id'])
+            __init__.error_message_ids += [event.message.id]
+            print(f"Не удалось обработать сообщение с id = {event.message.id}. Перехожу к следующему сообщению.")
+        __init__.last_answered_msg_id.set_value(event.message.id)
         print('Обработал письмо с id = ' + str(event.message.id))
         print('Значение id последнего отвеченого сообщения = ' + str(__init__.last_answered_msg_id))
