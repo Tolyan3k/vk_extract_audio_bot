@@ -91,21 +91,26 @@ def process_msg(msg):
 
 # __В случае временного отключения бота__
 # Обрабатываем все неотвеченные сообщения, начиная с самых старых, до тех пор, пока не останется неотвеченных сообщений
-print('Начинаю проверять неотвеченные сообщения.' + f' Текущий id = {__init__.last_answered_msg_id}')
+print('Начинаю проверять неотвеченные сообщения.' + f' Текущий id последнего отвеченного сообщения = {__init__.last_answered_msg_id}')
 
-msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, __init__.last_answered_msg_id + 1)
-while msg:
-    try:
-        process_msg(msg)
-    except Exception as error:
-        pprint(error)
-        __init__.error_message_ids += [msg["id"]]
-        print(f"Не удалось обработать сообщение с id = {msg['id']}. Перехожу к следующему сообщению.")
-    __init__.last_answered_msg_id.set_value(msg['id'])
+get_last_unanswered_msg_id = lambda: __init__.vk_main_group_api_session.get_api().messages.getConversations(
+    count= 1
+)['items'][0]['last_message']['id']
 
-    msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, __init__.last_answered_msg_id + 1)
+while __init__.last_answered_msg_id != get_last_unanswered_msg_id():
+    for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1, get_last_unanswered_msg_id() + 1):
+        msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, msg_id)
+        if msg:
+            try:
+                process_msg(msg)
+            except Exception as error:
+                pprint(error)
+                __init__.error_message_ids += [msg_id]
+                print(f"Не удалось обработать сообщение с id = {msg_id}. Перехожу к следующему сообщению.")
 
-print('Закончил проверять неотвеченные сообщения.' + f' Последний id = {__init__.last_answered_msg_id}')
+        __init__.last_answered_msg_id.set_value(msg_id)
+
+print('Закончил проверять неотвеченные сообщения.' + f' Id последнего отвеченного сообщения = {__init__.last_answered_msg_id}')
 
 # __Штатная работа__
 # Последующие новые сообщения обрабатываем с помощью лонгполла
