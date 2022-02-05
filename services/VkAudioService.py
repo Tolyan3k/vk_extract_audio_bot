@@ -13,17 +13,6 @@ class VkAudioService(object):
             title=audio_info.title
         )
 
-        # На данный момент возможность не поддерживается библиотекой
-        # audio = vk_audio_session.get_by_id(audio_upl_info['ads']['content_id'])[0]
-        # if not isinstance(audio, bool) and audio.can_edit:
-        #     audio.edit(
-        #         artist= audio.artist,
-        #         title= audio.title,
-        #         text= audio_info.lyrics,
-        #     )
-        # else:
-        #     print("Не удалось добавить текст в аудиозапись")
-
         return audio_upl_info['ads']['content_id']
 
     @staticmethod
@@ -35,9 +24,11 @@ class VkAudioService(object):
 
     @staticmethod
     def add_audio(content_id: str, to: str) -> Optional[str]:
+        new_content_id = None
+        
         audio = vk_audio_session.get_by_id([content_id])[0]
         if not (isinstance(audio, bool) and audio == False):
             audio.add(to)
             new_content_id = f"{audio['owner_id']}_{audio['id']}"
 
-            return new_content_id
+        return new_content_id

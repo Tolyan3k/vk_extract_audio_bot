@@ -10,25 +10,19 @@ class VideoService(object):
     @staticmethod
     def get_video_info(link: str) -> VideoInfo:
         platform = None
-        #Если yotube_dl не выкинет исключение, то можно узнать платформу по экстрактору
-        try:
-            with yt_dlp.YoutubeDL({}) as ydl:
-                info_dict = ydl.extract_info(link, download=False)
 
-                #Пока будет распозновать только видосы из ВК
-                if info_dict['extractor'] == "vk":
-                    platform = VideoPlatform.VK
-                elif info_dict['extractor'] == 'youtube':
-                    platform = VideoPlatform.YOUTUBE
-                else:
-                    platform = VideoPlatform.OTHER
-        except:
-            pass
+        with yt_dlp.YoutubeDL({}) as ydl:
+            info_dict = ydl.extract_info(link, download=False)
+            if info_dict is None:
+                raise Exception("Не удалось извлечь информацию из видео")
 
-        #Иначе проверяем остальные платформы
-        if platform == None:
-            raise "Не удалось определить платформу"
-
+            if info_dict['extractor'] == "vk":
+                platform = VideoPlatform.VK
+            elif info_dict['extractor'] == 'youtube':
+                platform = VideoPlatform.YOUTUBE
+            else:
+                platform = VideoPlatform.OTHER
+        
         return VideoInfo(
             title=info_dict['title'],
             author=info_dict['uploader'],

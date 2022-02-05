@@ -26,7 +26,3 @@ class VkMesasgeService:
         iter_find_video(vk_msg)
         
         return videos
-
-    @staticmethod
-    def write_message(vk_session: VkApi, text: str, attachments):
-        pass
