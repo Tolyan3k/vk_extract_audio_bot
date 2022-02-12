@@ -19,3 +19,12 @@ DIRS = {
     'videos': BOT_DIR + '/temp/videos',
     'audios': BOT_DIR + '/temp/audios'
 }
+
+
+VIDEO_MIN_DURATION = 0
+VIDEO_MAX_DURATION = 600
+
+AUDIO_MIN_DURATION = 5
+
+
+VK_MAX_ATTACHMENTS = 10

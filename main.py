@@ -1,8 +1,10 @@
-from vk_api.bot_longpoll import VkBotEventType
 from typing import Optional
 from pprint import pprint
+from time import sleep
 import random
 import os
+
+from vk_api.bot_longpoll import VkBotEventType
 
 from bot_types.VideoDownloadSettings import VideoDownloadSettings
 from bot_types.AudioConvertSettings import AudioConvertSettings
@@ -20,7 +22,7 @@ def process_vk_video(vk_video_obj: dict, video_file_name: str) -> Optional[str]:
     video = vk_video_obj
     player_link = ""
 
-    if video.get("converting") or video.get("duration") == None or video.get("duration") > 600:
+    if video.get("converting") or video.get("duration") == None or video.get("duration") > config.VIDEO_MAX_DURATION:
         return None
 
     if video.get('platform') == VkVideoPlatform.VK.value \
@@ -34,8 +36,11 @@ def process_vk_video(vk_video_obj: dict, video_file_name: str) -> Optional[str]:
 
     try:
         video_info = VideoService.get_video_info(player_link)
-        video_file_name = VideoService.download_video(player_link, VideoDownloadSettings(0, 600, None, f"{video_file_name}"))
-        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(5))
+        video_file_name = VideoService.download_video(
+            player_link, 
+            VideoDownloadSettings(config.VIDEO_MIN_DURATION, config.VIDEO_MAX_DURATION, None, f"{video_file_name}")
+        )
+        audio_file_name = ConverterService.convert_video_to_audio(video_file_name, AudioConvertSettings(config.AUDIO_MIN_DURATION))
         audio_content_id = VkAudioService.upload_audio(config.DIRS['audios'] + f'/{audio_file_name}', AudioInfo(
             artist=video_info.author,
             title=video_info.title,
@@ -92,11 +97,12 @@ def process_msg(msg):
                 + "Это может быть связяно с тем, что платформы этих видео сейчас не поддерживаются ботом, либо " \
                 + "видео длиннее 10 минут."
     
-    for part in range(0, parts := (len(vk_audio_content_ids) + 10) // 10):
+    for part in range(0, parts := (len(vk_audio_content_ids) + config.VK_MAX_ATTACHMENTS) // config.VK_MAX_ATTACHMENTS):
         __init__.vk_main_group_api_session.get_api().messages.send(
             message= f"[{part + 1}/{parts}]" if parts > 1 else msg_text,
             reply_to= msg['id'],
-            attachment= "audio" + ",audio".join(vk_audio_content_ids[10 * part: min(10 * (part + 1), len(vk_audio_content_ids))]),
+            attachment= "audio" \
+                + ",audio".join(vk_audio_content_ids[config.VK_MAX_ATTACHMENTS * part: min(config.VK_MAX_ATTACHMENTS * (part + 1), len(vk_audio_content_ids))]),
             user_id= msg['peer_id'],
             random_id= random.randint(0, 1 << 31),
         )
@@ -138,6 +144,7 @@ print('Начинаю получать сообщения через лонгп�
 for event in __init__.vk_bot_longpoll.listen():
     if event.type == VkBotEventType.MESSAGE_NEW:
         print('Получил письмо с id = ' + str(event.message.id))
+        sleep(1)
         msg = VkMesasgeService.get_message_by_id(__init__.vk_main_group_api_session, event.message.id)
         try:
             process_msg(msg)
