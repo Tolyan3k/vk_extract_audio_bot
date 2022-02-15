@@ -1,4 +1,4 @@
-from vk_api.bot_longpoll import VkBotLongPoll
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api import VkApi
 from vk_audio import *
 import pymongo
@@ -11,6 +11,22 @@ import config
 
 def auth_handler():
     return pyotp.TOTP(config.VK_USER_2FA).now(), True
+
+
+def captcha_handler(captcha):
+    vk_archive_group_api_session.get_api().messages.send(
+        message= "Требуется капча:\n" + f"{captcha.get_url()}",
+        user_id= config.VK_USER_ID,
+        random_id= random.randint(0, 1 << 31),
+    )
+
+    key = ""
+    for event in VkBotLongPoll(vk_archive_group_api_session, config.VK_ARCHIVE_GROUP_ID).listen():
+        if event.type == VkBotEventType.MESSAGE_NEW and event.from_user == config.VK_USER_ID:
+            key = event.text
+            break
+
+    return captcha.try_again(key)
 
 
 for dir in config.DIRS.values():
