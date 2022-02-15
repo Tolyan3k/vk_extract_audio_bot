@@ -9,7 +9,7 @@ class VkVideoPlatform(Enum):
     YOUTUBE = "YouTube"
 
 
-def video_platform_to_vk_video_platform(video_platform: VideoPlatform) -> VkVideoPlatform | None:
+def video_platform_to_vk_video_platform(video_platform: VideoPlatform) -> Optional[VkVideoPlatform]:
     if video_platform == VideoPlatform.VK:
         return VkVideoPlatform.VK
     elif video_platform == VideoPlatform.YOUTUBE:
