@@ -10,7 +10,7 @@ import config
 
 
 def auth_handler():
-    return pyotp.TOTP(config.VK_USER_2FA).now(), True
+    return pyotp.TOTP(config.VK_USER_2FA).now(), False
 
 
 def captcha_handler(captcha):
