@@ -37,7 +37,8 @@ vk_user_session = VkApi(token=config.VK_USER_TOKEN)
 vk_cred_session = VkApi(
     login=config.VK_USER_LOGIN, 
     password=config.VK_USER_PASSWORD, 
-    auth_handler=auth_handler
+    auth_handler=auth_handler,
+    captcha_handler=captcha_handler,
 )
 vk_cred_session.auth()
 vk_audio_session = VkAudio(vk_cred_session)
