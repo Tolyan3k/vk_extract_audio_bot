@@ -131,6 +131,7 @@ class VkApi(object):
 
         self.lock = threading.Lock()
 
+        logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger('vk_api')
 
     @property
@@ -305,6 +306,10 @@ class VkApi(object):
             return self.error_handlers[CAPTCHA_ERROR_CODE](captcha)
 
         if 'onLoginReCaptcha(' in response.text:
+            print('#' * 30 + '\n' + '#' * 30)
+            pprint(response)
+            print('#' * 30 + '\n' + '#' * 30)
+            
             self.logger.info('Captcha code is required (recaptcha)')
 
             captcha_sid = str(random.random())[2:16]
@@ -372,9 +377,6 @@ class VkApi(object):
         elif status == '2':
             print('#' * 30 + '\n' + '#' * 30)
             pprint(data)
-            print('#' * 30 + '\n' + '#' * 30)
-            print('#' * 30 + '\n' + '#' * 30)
-            pprint(self.logger)
             print('#' * 30 + '\n' + '#' * 30)
             raise TwoFactorError('Recaptcha required')
 
