@@ -373,6 +373,9 @@ class VkApi(object):
             print('#' * 30 + '\n' + '#' * 30)
             pprint(data)
             print('#' * 30 + '\n' + '#' * 30)
+            print('#' * 30 + '\n' + '#' * 30)
+            pprint(self.logger)
+            print('#' * 30 + '\n' + '#' * 30)
             raise TwoFactorError('Recaptcha required')
 
         raise TwoFactorError(get_unknown_exc_str('2FA; unknown status'))
