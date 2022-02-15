@@ -309,7 +309,7 @@ class VkApi(object):
             print('#' * 30 + '\n' + '#' * 30)
             pprint(response)
             print('#' * 30 + '\n' + '#' * 30)
-            
+
             self.logger.info('Captcha code is required (recaptcha)')
 
             captcha_sid = str(random.random())[2:16]
@@ -322,6 +322,10 @@ class VkApi(object):
 
         if 'act=authcheck' in response.text:
             self.logger.info('2FA is required')
+
+            print('#' * 30 + '\n' + '#' * 30)
+            pprint(response)
+            print('#' * 30 + '\n' + '#' * 30)
 
             response = self.http.get('https://vk.com/login?act=authcheck')
 
@@ -367,6 +371,10 @@ class VkApi(object):
         data = json.loads(response.text.lstrip('<!--'))
         status = data['payload'][0]
 
+        print('#' * 30 + '\n' + '#' * 30)
+        pprint(response)
+        print('#' * 30 + '\n' + '#' * 30)
+
         if status == '4':  # OK
             path = json.loads(data['payload'][1][0])
             return self.http.get(path)
@@ -375,9 +383,6 @@ class VkApi(object):
             return self._pass_twofactor(auth_response)
 
         elif status == '2':
-            print('#' * 30 + '\n' + '#' * 30)
-            pprint(data)
-            print('#' * 30 + '\n' + '#' * 30)
             raise TwoFactorError('Recaptcha required')
 
         raise TwoFactorError(get_unknown_exc_str('2FA; unknown status'))
