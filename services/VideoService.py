@@ -1,4 +1,3 @@
-from typing import Optional
 import yt_dlp
 
 from bot_types.VideoDownloadSettings import VideoDownloadSettings
@@ -20,7 +19,7 @@ class VideoService(object):
                 platform = VideoPlatform.VK
             elif info_dict['extractor'] == 'youtube':
                 platform = VideoPlatform.YOUTUBE
-            else:
+            elif info_dict.get('extractor') is not None:
                 platform = VideoPlatform.OTHER
         
         return VideoInfo(
@@ -31,7 +30,7 @@ class VideoService(object):
         )
 
     @staticmethod
-    def download_video(link: str, download_settings: VideoDownloadSettings) -> Optional[str]:
+    def download_video(link: str, download_settings: VideoDownloadSettings) -> str:
         video_info = VideoService.get_video_info(link)
 
         if video_info.platform == VideoPlatform.VK \
@@ -40,19 +39,19 @@ class VideoService(object):
                 'format' : 'best',
                 'outtmpl': config.DIRS['videos'] + f'/{download_settings.file_name}.mp4',
             }
-
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([link])
         elif video_info.platform == VideoPlatform.YOUTUBE \
             and download_settings.min_duration <= video_info.duration <= download_settings.max_duration:
             ydl_opts = {
                 'format' : 'best',
                 'outtmpl': config.DIRS['videos'] + f'/{download_settings.file_name}.mp4',
             }
-
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([link])
         else:
             return None
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([link])
+        except Exception as error:
+            raise error
 
         return f'{download_settings.file_name}.mp4'

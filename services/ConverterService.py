@@ -8,7 +8,7 @@ from config import DIRS
 
 class ConverterService(object):
     @staticmethod
-    def convert_video_to_audio(video_file_name: str, audio_convert_settings: Optional[AudioConvertSettings] = None) -> str:
+    def convert_video_to_audio(video_file_name: str, audio_convert_settings: AudioConvertSettings) -> str:
         video_file_info = ffmpeg.probe(DIRS['videos'] + '/' + video_file_name)
 
         bit_rate = None

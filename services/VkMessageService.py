@@ -1,7 +1,12 @@
 from typing import Optional
+
 from vk_api import VkApi
 
+from bot_types.VideoPlatform import \
+    VIDEO_PATTERNS_COMPILED_FULL, VIDEO_PATTERNS_COMPILED, VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS
+from bot_types.VkVideoPlatform import VkVideoPlatform, video_platform_to_vk_video_platform
 import __init__
+
 
 class VkMesasgeService:
     @staticmethod
@@ -11,7 +16,7 @@ class VkMesasgeService:
             return msg_data['items'][0]
 
     @staticmethod
-    def get_videos_from_message(vk_msg: dict) -> list:
+    def get_video_attachments_from_message(vk_msg: dict) -> list:
         videos = []
 
         def iter_find_video(vk_msg: dict):
@@ -26,3 +31,19 @@ class VkMesasgeService:
         iter_find_video(vk_msg)
         
         return videos
+
+    @staticmethod
+    def get_video_links_from_text(vk_msg: dict) -> list[dict]:
+        video_links = []
+
+        for video_link_match in VIDEO_PATTERNS_COMPILED_FULL.finditer(vk_msg['text']):
+            for video_pattern_compiled in VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS:
+                if (temp := video_pattern_compiled[0].match(video_link_match.string)):
+                    video_link = {}
+                    for group in temp:
+                        video_link.setdefault(group, temp.group(group))
+                    video_link.setdefault('platform', video_platform_to_vk_video_platform(video_pattern_compiled[1]))
+                    video_links.append(video_link)
+                    break
+
+        return video_links
