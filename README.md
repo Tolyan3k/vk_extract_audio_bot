@@ -56,4 +56,4 @@
 
 [bot work example image]: https://i.ibb.co/QkNHZCk/2022-02-17-142927.png
 
-[architecture image]: : https://i.ibb.co/RzfVbb8/image.png
+[architecture image]: https://i.ibb.co/RzfVbb8/image.png
