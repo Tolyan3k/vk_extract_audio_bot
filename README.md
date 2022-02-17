@@ -8,9 +8,15 @@
 
 На данный момент поддерживает видео до 10 минут, переданные через сообщение в виде *вложения*
 
+## Познакомиться с ботом
+
+[Группа с ботом][bot group link]
+
+[Чат с ботом][bot chat link]
+
 ## Архитектура
 
-![Здесь будет картинка с архитектурой][architecture image]
+![Архитектура проекта][architecture image]
 
 ## Тесты
 
@@ -51,6 +57,10 @@
 [user-level tests]: https://docs.google.com/document/d/1wF3ij4__Fz41tzWrg7cdNFjW61Sc9YVp2clQEnLOYcI/edit?usp=sharing
 
 [heroku buildpack link]: https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
+
+[bot group link]: https://vk.com/vid_audio_converter
+
+[bot chat link]: https://vk.me/vid_audio_converter
 
 <!-- Image links -->
 
