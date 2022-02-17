@@ -10,7 +10,7 @@
 
 ## Архитектура
 
-![Здесь будет картинка с архитектурой][architecture image]: https://i.ibb.co/RzfVbb8/image.png
+![Здесь будет картинка с архитектурой][architecture image]
 
 ## Тесты
 
@@ -56,4 +56,4 @@
 
 [bot work example image]: https://i.ibb.co/QkNHZCk/2022-02-17-142927.png
 
-[architecture image]: ""
+[architecture image]: : https://i.ibb.co/RzfVbb8/image.png
