@@ -10,7 +10,7 @@
 
 ## Архитектура
 
-![Здесь будет картинка с архитектурой][architecture image]
+![Здесь будет картинка с архитектурой][architecture image]: https://i.ibb.co/RzfVbb8/image.png
 
 ## Тесты
 
