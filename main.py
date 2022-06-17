@@ -75,7 +75,7 @@ def send_audios_to_user(msg: dict, videos: list[dict], vk_audio_content_ids: lis
         elif not len(vk_audio_content_ids):
             msg_text = Messages.failed_to_convert_all_many()
     
-    for part in range(0, parts := (len(vk_audio_content_ids) + config.VK_MAX_ATTACHMENTS) // config.VK_MAX_ATTACHMENTS):
+    for part in range(0, parts := (len(vk_audio_content_ids) + (config.VK_MAX_ATTACHMENTS - 1)) // config.VK_MAX_ATTACHMENTS):
         try:
             __init__.vk_main_group_api_session.get_api().messages.send(
                 message= f"[{part + 1}/{parts}]" if parts > 1 else msg_text,

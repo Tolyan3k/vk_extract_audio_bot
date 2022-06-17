@@ -18,7 +18,7 @@ MONGODB_URI = os.environ['MONGODB_URI']
 BOT_DIR = os.environ['PYTHONPATH']
 DIRS = {
     'videos': BOT_DIR + '/temp/videos',
-    'audios': BOT_DIR + '/temp/audios'
+    'audios': BOT_DIR + '/temp/audios',
 }
 
 

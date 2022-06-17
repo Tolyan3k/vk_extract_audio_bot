@@ -15,7 +15,9 @@ class ConverterService(object):
         if video_file_info.get('streams') \
             and len(video_file_info.get('streams')) > 1 \
             and video_file_info.get('streams')[1].get('bit_rate'):
+
             bit_rate = video_file_info.get('streams')[1].get('bit_rate')
+
 
         if audio_convert_settings:
             try:
@@ -29,7 +31,6 @@ class ConverterService(object):
                             duration=audio_convert_settings.min_duration - audio_clip.duration, 
                             fps=audio_clip.fps
                         )
-                        
                         audio_clip = CompositeAudioClip([audio_clip, silence])
 
                     audio_clip.write_audiofile(DIRS['audios'] + '/' + video_file_name[:-3] + 'mp3', audio_clip_fps, bitrate=bit_rate)
