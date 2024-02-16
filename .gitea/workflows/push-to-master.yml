@@ -1,0 +1,102 @@
+name: release-tag
+
+run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+  Run-Tests:
+    runs-on: ubuntu-22.04
+    container:
+      image: catthehacker/ubuntu:act-22.04
+    env:
+      VK_USER_TOKEN: ${{ secrets.VK_USER_TOKEN }}
+      VK_USER_LOGIN: ${{ secrets.VK_USER_LOGIN }}
+      VK_USER_PASSWORD: ${{ secrets.VK_USER_PASSWORD }}
+      VK_USER_2FA: ${{ secrets.VK_USER_2FA }}
+      VK_USER_ID: ${{ secrets.VK_USER_ID }}
+      VK_AUDIO_CLIENT_SECRET: ${{ secrets.VK_AUDIO_CLIENT_SECRET }}
+      VK_ARCHIVE_GROUP_TOKEN: ${{ secrets.VK_ARCHIVE_GROUP_TOKEN }}
+      VK_ARCHIVE_GROUP_ID: ${{ secrets.VK_ARCHIVE_GROUP_ID }}
+      VK_MAIN_GROUP_URL: ${{ secrets.VK_MAIN_GROUP_URL }}
+      VK_MAIN_GROUP_TOKEN: ${{ secrets.VK_MAIN_GROUP_TOKEN }}
+      VK_MAIN_GROUP_ID: ${{ secrets.VK_MAIN_GROUP_ID }}
+      VIDEO_MAX_DURATION: ${{ secrets.VIDEO_MAX_DURATION }}
+      ZODB_DB_PATH: ${{ secrets.ZODB_DB_PATH }}
+      PYTHONPATH: ${{ secrets.PYTHONPATH }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup ffmpeg
+        run: |
+          sudo apt update
+          apt install ffmpeg -y
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: |
+            3.10
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.max-workers 10
+          poetry install
+      - name: Test with pytest
+        run: |
+          mkdir .db
+          poetry run python -m pytest
+
+  Release-Image:
+    runs-on: ubuntu-latest
+    if: success('Run-Tests')
+    needs: [Run-Tests]
+    branches:
+      - master
+    container:
+      image: catthehacker/ubuntu:act-latest
+    env:
+      DOCKER_ORG: salt_drugman
+      DOCKER_LATEST: nightly
+      RUNNER_TOOL_CACHE: /toolcache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+        with: # replace it with your local IP
+          config-inline: |
+            [registry."192.168.0.2:3000"] 
+              http = true
+              insecure = true            
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          registry: 192.168.0.2:3000 # replace it with your local IP
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT                
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: |
+            linux/amd64
+            linux/arm64                        
+          push: true
+          tags: | # replace it with your local IP and tags
+            192.168.0.2:3000/${{ env.DOCKER_ORG }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}
+            192.168.0.2:3000/${{ env.DOCKER_ORG }}/${{ steps.meta.outputs.REPO_NAME }}:${{ env.DOCKER_LATEST }}

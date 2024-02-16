@@ -1,65 +1,135 @@
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-from vk_api import VkApi
-from vk_audio import *
-import pymongo
-import pyotp
+import functools
+import random
 import os
 
-from bot_types.MongoVariable import MongoVariable
-import config
+import ZODB
+import ZODB.FileStorage
+
+import pyotp
+
+from vk_api import VkApi
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+import vkaudiotoken
+# from vk_audio import *
+
+# import pymongo
+
+from config import *
+from bot_types.vk_android_audio import VkAndroidApi
+from bot_types.ZodbVariable import ZodbVariable
+
+# from bot_types.MongoVariable import MongoVariable
 
 
 def auth_handler():
-    return pyotp.TOTP(config.VK_USER_2FA).now(), False
+    key = pyotp.TOTP(VK_USER_2FA).now()
+    remember_device = True
+
+    return key, remember_device
 
 
-def captcha_handler(captcha):
-    vk_archive_group_api_session.get_api().messages.send(
+def captcha_handler(captcha, vk_bot_session: VkApi, vk_bot_group_id: int, vk_user_id: int):
+    vk_bot_session.get_api().messages.send(
         message= "Требуется капча:\n" + f"{captcha.get_url()}",
-        user_id= config.VK_USER_ID,
+        user_id= vk_user_id,
         random_id= random.randint(0, 1 << 31),
     )
 
     key = ""
-    for event in VkBotLongPoll(vk_archive_group_api_session, config.VK_ARCHIVE_GROUP_ID).listen():
-        if event.type == VkBotEventType.MESSAGE_NEW and event.from_user == config.VK_USER_ID:
+    for event in VkBotLongPoll(vk_bot_session, vk_bot_group_id).listen():
+        if event.type == VkBotEventType.MESSAGE_NEW \
+        and event.from_user == vk_user_id:
             key = event.text
             break
 
     return captcha.try_again(key)
 
 
-for dir in config.DIRS.values():
+for dir in BOT_WORK_DIRS.values():
     os.makedirs(dir, exist_ok=True)
 
-vk_user_session = VkApi(token=config.VK_USER_TOKEN)
+vk_user_session = VkApi(token=VK_USER_TOKEN)
+vk_main_group_api_session = VkApi(token=VK_MAIN_GROUP_TOKEN)
+vk_archive_group_api_session = VkApi(token=VK_ARCHIVE_GROUP_TOKEN)
 
-vk_cred_session = VkApi(
-    login=config.VK_USER_LOGIN, 
-    password=config.VK_USER_PASSWORD, 
-    auth_handler=auth_handler,
-    captcha_handler=captcha_handler,
-)
-vk_cred_session.auth()
-vk_audio_session = VkAudio(vk_cred_session)
-
-vk_archive_group_api_session = VkApi(token=config.VK_ARCHIVE_GROUP_TOKEN)
-vk_main_group_api_session = VkApi(token=config.VK_MAIN_GROUP_TOKEN)
-
-vk_bot_longpoll = VkBotLongPoll(vk_main_group_api_session, config.VK_MAIN_GROUP_ID)
-
-last_answered_msg_id = MongoVariable(
-    mongo_client=pymongo.MongoClient(config.MONGODB_URI, connect=True),
-    database_name='main',
-    collection_name='env',
-    object_id='62ac664046870d530fc73c44',
-    var_name='last_answered_message_id'
+captcha_handler = functools.partial(captcha_handler, 
+    vk_bot_session= vk_archive_group_api_session,
+    vk_bot_group_id= VK_ARCHIVE_GROUP_ID,
+    vk_user_id= VK_USER_ID,
 )
 
-error_message_ids = MongoVariable(
-    mongo_client=pymongo.MongoClient(config.MONGODB_URI, connect=True),
-    database_name='main',
-    collection_name='env',
-    object_id='62ac664046870d530fc73c44',
-    var_name='error_message_ids'
-)
+try:
+    vk_audio_token = vkaudiotoken.get_vk_official_token(
+        VK_USER_LOGIN, 
+        VK_USER_PASSWORD, 
+        pyotp.TOTP(VK_USER_2FA).now()
+    )['token']
+except: # Если получил код в момент, когда его время действия закончилось
+    vk_audio_token = vkaudiotoken.get_vk_official_token(
+        VK_USER_LOGIN, 
+        VK_USER_PASSWORD, 
+        pyotp.TOTP(VK_USER_2FA).now()
+    )['token']
+
+vk_audio_api = VkAndroidApi(token=vk_audio_token, secret=VK_AUDIO_CLIENT_SECRET)
+vk_audio_api.method('execute.getUserInfo',func_v=9)
+vk_audio_api.method('auth.refreshToken',lang='ru')
+
+vk_bot_longpoll = VkBotLongPoll(vk_main_group_api_session, VK_MAIN_GROUP_ID)
+
+
+if DEBUG:
+    debug_value = 1164 # 1047 # 998
+
+    zodb_storage = ZODB.FileStorage.FileStorage('.db/.debug_db')
+    zodb_db = ZODB.DB(zodb_storage)
+
+    last_answered_msg_id = ZodbVariable(
+        zodb_db=zodb_db,
+        var_name='last_answered_message_id'
+    )
+
+    error_message_ids = ZodbVariable(
+        zodb_db=zodb_db,
+        var_name='error_message_ids'
+    )
+
+    converted_videos_content_id_to_audio_content_id = ZodbVariable(
+        zodb_db= zodb_db,
+        var_name= 'converted_videos_content_id_to_audio_content_id'
+    )
+
+    last_answered_msg_id.set_value(debug_value)
+    error_message_ids.set_value([])
+    if not converted_videos_content_id_to_audio_content_id.exist():
+        converted_videos_content_id_to_audio_content_id.set_value(dict())
+else:
+    zodb_storage = ZODB.FileStorage.FileStorage(ZODB_DB_PATH)
+    zodb_db = ZODB.DB(zodb_storage)
+
+    last_answered_msg_id = ZodbVariable(
+        zodb_db=zodb_db,
+        var_name='last_answered_message_id'
+    )
+
+    error_message_ids = ZodbVariable(
+        zodb_db=zodb_db,
+        var_name='error_message_ids'
+    )
+
+    converted_videos_content_id_to_audio_content_id = ZodbVariable(
+        zodb_db= zodb_db,
+        var_name= 'converted_videos_content_id_to_audio_content_id'
+    )
+
+    if not last_answered_msg_id.exist():
+        last_answered_msg_id.set_value(0)
+    if not error_message_ids.exist():
+        error_message_ids.set_value([])
+    if not converted_videos_content_id_to_audio_content_id.exist():
+        converted_videos_content_id_to_audio_content_id.set_value(dict())
+
+    # db = converted_videos_content_id_to_audio_content_id.get_value()
+    # # db.pop('138136673_456239965')
+    # converted_videos_content_id_to_audio_content_id.set_value(dict())
+    

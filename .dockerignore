@@ -161,5 +161,4 @@ cython_debug/
 #.idea/
 
 .*
-!.gitea
-!.dockerignore
+tests/

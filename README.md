@@ -63,9 +63,9 @@
 
 [heroku buildpack link]: https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
 
-[bot group link]: https://vk.com/vid_audio_converter
+[bot group link]: https://vk.com/convert_to_audio
 
-[bot chat link]: https://vk.me/vid_audio_converter
+[bot chat link]: https://vk.me/convert_to_audio
 
 <!-- Image links -->
 

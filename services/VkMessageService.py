@@ -5,7 +5,6 @@ from vk_api import VkApi
 from bot_types.VideoPlatform import \
     VIDEO_PATTERNS_COMPILED_FULL, VIDEO_PATTERNS_COMPILED, VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS
 from bot_types.VkVideoPlatform import VkVideoPlatform, video_platform_to_vk_video_platform
-import __init__
 
 
 class VkMesasgeService:

@@ -9,5 +9,6 @@ class VideoInfo:
     #link: str
     platform: VideoPlatform
     duration: int
+    is_public: bool = False
     #path: None | str
     
