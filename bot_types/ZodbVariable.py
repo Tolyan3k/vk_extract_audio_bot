@@ -1,11 +1,13 @@
-import transaction
+"""TODO
+"""
+
 import ZODB
 
 
 class ZodbVariable:
-    def __init__(self, 
-        zodb_db: ZODB.DB,
-        var_name: str) -> None:
+    """TODO"""
+
+    def __init__(self, zodb_db: ZODB.DB, var_name: str) -> None:
 
         self._zodb_db = zodb_db
         self._var_name = var_name
@@ -18,6 +20,13 @@ class ZodbVariable:
 
     # Methods
     def set_value(self, value):
+        """TODO
+
+        Args:
+        ----
+            value (_type_): _description_
+
+        """
         # self.__mongo_client[self.__database_name][self.__collection_name].update_one({
         #     '_id': ObjectId(self.__object_id)
         # }, {
@@ -28,17 +37,31 @@ class ZodbVariable:
             conn.root()[self._var_name] = value
 
     def get_value(self):
+        """TODO
+
+        Returns
+        -------
+            _type_: _description_
+
+        """
         with self._zodb_db.transaction() as conn:
             return conn.root()[self._var_name]
-        #return self.__var_value
+        # return self.__var_value
 
     def exist(self):
+        """TODO
+
+        Returns
+        -------
+            _type_: _description_
+
+        """
         with self._zodb_db.transaction() as conn:
             if self._var_name in conn.root():
                 return True
             return False
 
-    #================================================
+    # ================================================
     def __repr__(self):
         return self.get_value().__repr__()
 
@@ -57,7 +80,7 @@ class ZodbVariable:
 
     def __truediv__(self, rhs):
         return self.get_value().__truediv__(rhs)
-    
+
     def __floordiv__(self, rhs):
         return self.get_value().__floordiv__(rhs)
 
@@ -88,22 +111,22 @@ class ZodbVariable:
 
     def __gt__(self, rhs):
         return self.get_value().__gt__(rhs)
-    
+
     def __le__(self, rhs):
         return self.get_value().__le__(rhs)
-    
+
     def __ge__(self, rhs):
         return self.get_value().__ge__(rhs)
-    
+
     def __eq__(self, rhs):
         return self.get_value().__eq__(rhs)
-    
+
     def __ne__(self, rhs):
         return self.get_value().__ne__(rhs)
-    
+
     # Unary operators
     def __isub__(self, rhs):
-        #self.set_value(self.get_value().__sub__(rhs))
+        # self.set_value(self.get_value().__sub__(rhs))
         # self.__var_value = self.__var_value.__sub__(rhs)
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__isub__(rhs)
@@ -111,7 +134,7 @@ class ZodbVariable:
         return self
 
     def __iadd__(self, rhs):
-        #self.set_value(self.get_value().__add__(rhs))
+        # self.set_value(self.get_value().__add__(rhs))
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__iadd__(rhs)
         # self.__var_value = self.__var_value.__add__(rhs)
@@ -119,7 +142,7 @@ class ZodbVariable:
         return self
 
     def __imul__(self, rhs):
-        #self.set_value(self.get_value().__mul__(rhs))
+        # self.set_value(self.get_value().__mul__(rhs))
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__imul__(rhs)
         # self.__var_value = self.__var_value.__mul__(rhs)
@@ -133,5 +156,6 @@ class ZodbVariable:
         # self.__var_value = self.__var_value.__div__(rhs)
 
         return self
+
 
 # ...

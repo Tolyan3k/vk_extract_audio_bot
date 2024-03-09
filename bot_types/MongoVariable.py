@@ -1,33 +1,71 @@
-from bson.objectid import ObjectId
+"""TODO
+"""
+
 import pymongo
+from bson.objectid import ObjectId
 
 
 class MongoVariable:
-    def __init__(self, 
-        mongo_client: pymongo.MongoClient, 
-        database_name: str, collection_name: str, object_id: str, 
-        var_name: str) -> None:
+    """TODO"""
+
+    def __init__(
+        self,
+        mongo_client: pymongo.MongoClient,
+        database_name: str,
+        collection_name: str,
+        object_id: str,
+        var_name: str,
+    ) -> None:
 
         self.__mongo_client = mongo_client
         self.__database_name = database_name
         self.__collection_name = collection_name
         self.__object_id = object_id
         self.__var_name = var_name
-        self.__var_value = self.__mongo_client[self.__database_name][self.__collection_name].find_one({'_id': ObjectId(self.__object_id)}, {'_id': 0, self.__var_name: 1})[self.__var_name]
+        self.__var_value = self.__mongo_client[self.__database_name][
+            self.__collection_name].find_one(
+                {
+                    "_id": ObjectId(self.__object_id),
+                },
+                {
+                    "_id": 0,
+                    self.__var_name: 1,
+                },
+            )[self.__var_name]
 
     # Methods
     def set_value(self, value):
-        self.__mongo_client[self.__database_name][self.__collection_name].update_one({
-            '_id': ObjectId(self.__object_id)
-        }, {
-            '$set': {self.__var_name: value}
-        })
+        """TODO
+
+        Args:
+        ----
+            value (_type_): _description_
+
+        """
+        self.__mongo_client[self.__database_name][
+            self.__collection_name].update_one(
+                {
+                    "_id": ObjectId(self.__object_id),
+                },
+                {
+                    "$set": {
+                        self.__var_name: value,
+                    },
+                },
+            )
         self.__var_value = value
 
     def get_value(self):
+        """TODO
+
+        Returns
+        -------
+            _type_: _description_
+
+        """
         return self.__var_value
 
-    #================================================
+    # ================================================
     def __repr__(self):
         return self.__var_value.__repr__()
 
@@ -46,7 +84,7 @@ class MongoVariable:
 
     def __truediv__(self, rhs):
         return self.__var_value.__truediv__(rhs)
-    
+
     def __floordiv__(self, rhs):
         return self.__var_value.__floordiv__(rhs)
 
@@ -77,19 +115,19 @@ class MongoVariable:
 
     def __gt__(self, rhs):
         return self.__var_value.__gt__(rhs)
-    
+
     def __le__(self, rhs):
         return self.__var_value.__le__(rhs)
-    
+
     def __ge__(self, rhs):
         return self.__var_value.__ge__(rhs)
-    
+
     def __eq__(self, rhs):
         return self.__var_value.__eq__(rhs)
-    
+
     def __ne__(self, rhs):
         return self.__var_value.__ne__(rhs)
-    
+
     # Unary operators
     def __isub__(self, rhs):
         self.set_value(self.__var_value.__sub__(rhs))
@@ -114,5 +152,6 @@ class MongoVariable:
         self.__var_value = self.__var_value.__div__(rhs)
 
         return self
+
 
 # ...

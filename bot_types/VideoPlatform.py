@@ -1,11 +1,24 @@
-from enum import IntEnum, auto
+"""TODO
+"""
+
 import re
+from enum import IntEnum, auto
+
 
 class VideoPlatform(IntEnum):
+    """TODO
+
+    Args:
+    ----
+        IntEnum (_type_): _description_
+
+    """
+
     YOUTUBE = auto()
     VK = auto()
     RAVE_DJ = auto()
     OTHER = auto()
+
 
 VK_VIDEO_PATTERN = r"video(?P<vk_owner_id>[-]?\d+)_(?P<vk_video_id>\d+)"
 VK_VIDEO_PATTERN_COMPILED = re.compile(VK_VIDEO_PATTERN)
@@ -14,7 +27,7 @@ YOUTUBE_VIDEO_PATTERN = r"(?:\/|%3D|v=|vi=)(?P<yt_video_id>[0-9A-z-_]{11})(?:[%#
 YOUTUBE_VIDEO_PATTERN_COMPILED = re.compile(YOUTUBE_VIDEO_PATTERN)
 
 VIDEO_PATTERNS = (
-    VK_VIDEO_PATTERN, 
+    VK_VIDEO_PATTERN,
     YOUTUBE_VIDEO_PATTERN,
 )
 
@@ -24,8 +37,10 @@ VIDEO_PATTERNS_COMPILED = (
 )
 
 VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS = (
-    (VK_VIDEO_PATTERN_COMPILED, VideoPlatform.VK),
-    (YOUTUBE_VIDEO_PATTERN_COMPILED, VideoPlatform.YOUTUBE),
+    (VK_VIDEO_PATTERN_COMPILED,
+     VideoPlatform.VK),
+    (YOUTUBE_VIDEO_PATTERN_COMPILED,
+     VideoPlatform.YOUTUBE),
 )
 
 VIDEO_PATTERNS_COMPILED_FULL = re.compile(r"|".join(VIDEO_PATTERNS))
