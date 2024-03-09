@@ -414,15 +414,15 @@ def process_msg(msg):
     )
 
     vk_audio_content_ids = []
-    for video_id in range(len(videos)):
+    for video_id, video in enumerate(videos):
         try:
             archive_group_content_id, new_video = process_vk_video(
-                videos[video_id],
+                video,
                 f"{msg['id']}_{video_id}",
             )
         except Exception as error:
             logger.info(
-                f"Во время обработки видео {videos[video_id]} произошла ошибка.",
+                f"Во время обработки видео {video} произошла ошибка.",
             )
             logger.info(error)
             archive_group_content_id = None
