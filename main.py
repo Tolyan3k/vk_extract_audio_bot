@@ -315,13 +315,12 @@ def send_audios_to_user(
 
     """
     error_msg_text = ""
-    if len(videos) == 1 and not len(vk_audio_content_ids):
+    if len(videos) == 1 and len(vk_audio_content_ids) == 0:
         error_msg_text = user_messages.video_not_support()
     elif len(videos) > 1:
-        if len(vk_audio_content_ids,
-               ) and len(videos) - len(vk_audio_content_ids):
+        if len(vk_audio_content_ids) and len(videos) - len(vk_audio_content_ids):
             error_msg_text = user_messages.failed_to_convert_part_many()
-        elif not len(vk_audio_content_ids):
+        elif len(vk_audio_content_ids) == 0:
             error_msg_text = user_messages.failed_to_convert_all_many()
 
     parts = (
@@ -394,7 +393,7 @@ def process_msg(msg):
 
     videos = video_attachments
 
-    if not len(videos):
+    if len(videos) == 0:
         send_replied_msg_else_not(
             __init__.vk_main_group_api_session,
             message=user_messages.videos_not_found(),
