@@ -71,7 +71,7 @@ def captcha_handler(
 
     return captcha.try_again(key)
 
-
+os.makedirs(ZODB_DB_DIR, exist_ok=True)
 for dir in BOT_WORK_DIRS.values():
     os.makedirs(dir, exist_ok=True)
 
