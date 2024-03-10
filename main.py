@@ -605,7 +605,13 @@ def send_msg_if_queued(msg_id, msg_peer_id=None):
     if count:
         send_replied_msg_else_not(
             __init__.vk_main_group_api_session,
-            message=f"Отправил сообщение в очередь ожидания. Очередь перед этим сообщением: {count} {get_right_messages_word(count)}.",
+            message=" ".join(
+                [
+                    "Отправил сообщение в очередь ожидания.",
+                    "Очередь перед этим сообщением:",
+                    f"{count} {get_right_messages_word(count)}.",
+                ]
+            ),
             reply_to=msg_id,
             user_id=msg_peer_id,
             random_id=random.randint(0,
