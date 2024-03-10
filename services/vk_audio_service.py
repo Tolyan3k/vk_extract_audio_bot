@@ -1,17 +1,16 @@
-"""TODO
-"""
+"""TODO."""
 
 from vk_api.upload import VkUpload
 
-from bot_types.audio_info import AudioInfo
 from __init__ import (
-    vk_user_session,
     vk_audio_api,
+    vk_user_session,
 )
+from bot_types.audio_info import AudioInfo
 
 
 class VkAudioService:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -25,7 +24,7 @@ class VkAudioService:
 
     @staticmethod
     def upload_audio(audio_path: str, audio_info: AudioInfo) -> str:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -47,7 +46,7 @@ class VkAudioService:
 
     @staticmethod
     def delete_audio(content_id: str) -> None:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -66,7 +65,7 @@ class VkAudioService:
 
     @staticmethod
     def add_audio(content_id: str, to: str = "") -> str | None:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -121,7 +120,7 @@ class VkAudioService:
         new_text: str,
         search_visibility: bool,
     ):
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -134,7 +133,7 @@ class VkAudioService:
             _type_: _description_
 
         """
-        result = vk_audio_api.method(
+        return vk_audio_api.method(
             "audio.edit",
             owner_id=audio_content_id.split("_")[0],
             audio_id=audio_content_id.split("_")[1],
@@ -142,4 +141,3 @@ class VkAudioService:
             text=new_text,
         )["response"]
 
-        return result

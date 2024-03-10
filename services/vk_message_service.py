@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 from vk_api import VkApi
 
@@ -13,7 +12,7 @@ from bot_types.vk_video_platform import (
 
 
 class VkMesasgeService:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -23,7 +22,7 @@ class VkMesasgeService:
 
     @staticmethod
     def get_message_by_id(vk_session: VkApi, msg_id) -> dict | None:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -42,7 +41,7 @@ class VkMesasgeService:
 
     @staticmethod
     def get_video_attachments_from_message(vk_msg: dict) -> list:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -55,7 +54,7 @@ class VkMesasgeService:
         """
         videos = []
 
-        def _iter_find_video(vk_msg: dict):
+        def _iter_find_video(vk_msg: dict) -> None:
             for key in vk_msg:
                 if key == "video":
                     videos.append(vk_msg[key])
@@ -71,7 +70,7 @@ class VkMesasgeService:
 
     @staticmethod
     def get_video_links_from_text(vk_msg: dict) -> list[dict]:
-        """TODO
+        """TODO.
 
         Args:
         ----

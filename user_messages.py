@@ -1,11 +1,10 @@
-"""TODO
-"""
+"""TODO."""
 
 import config
 
 
 def start_processing_message() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -16,7 +15,7 @@ def start_processing_message() -> str:
 
 
 def undefined_convert_error() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -27,7 +26,7 @@ def undefined_convert_error() -> str:
 
 
 def videos_not_found() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -38,26 +37,21 @@ def videos_not_found() -> str:
 
 
 def video_not_support() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
         str: _description_
 
     """
-    return " ".join(
-        [
-            "К сожалению, данное видео не поддерживается ботом.",
-            "Или возможно, что оно не содержит аудио.",
-        ]
-    )
+    return "К сожалению, данное видео не поддерживается ботом. Или возможно, что оно не содержит аудио."
     # return "К сожалению, данное видео не поддерживается ботом.\n" \
     #         + "Возможно, видео слишком длинное, либо его платформа не поддерживается.\n" \
     #         + "Также возможно, что музыка из этого видео блокируется правообладателями("
 
 
 def failed_to_convert_part_many() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -73,7 +67,7 @@ def failed_to_convert_part_many() -> str:
 
 
 def failed_to_convert_all_many() -> str:
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -87,6 +81,6 @@ def failed_to_convert_all_many() -> str:
             "не поддерживаются ботом, либо видео длиннее",
             str(config.VIDEO_MAX_DURATION / 60),
             "минут.",
-        ]
+        ],
     )
     return msg

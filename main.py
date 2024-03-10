@@ -1,11 +1,10 @@
-"""TODO
-"""
+"""TODO."""
 
+import contextlib
 import os
 import queue
 import random
 import threading
-from pprint import pprint
 from time import sleep
 
 from loguru import logger
@@ -18,28 +17,27 @@ from bot_types.audio_convert_settings import AudioConvertSettings
 from bot_types.audio_info import AudioInfo
 from bot_types.video_download_settings import VideoDownloadSettings
 from bot_types.vk_video_platform import VkVideoPlatform
+from config import (
+    AUDIO_MIN_DURATION,
+    BOT_WORK_DIRS,
+    VIDEO_MAX_DURATION,
+    VIDEO_MIN_DURATION,
+    VK_ARCHIVE_GROUP_ID,
+    VK_MAIN_GROUP_ID,
+    VK_MAIN_GROUP_URL,
+    VK_MAX_ATTACHMENTS,
+)
 from services.converter_service import ConverterService
 from services.video_service import VideoService
 from services.vk_audio_service import VkAudioService
 from services.vk_message_service import VkMesasgeService
-from config import (
-    BOT_WORK_DIRS,
-    VK_MAIN_GROUP_ID,
-    VK_MAIN_GROUP_URL,
-    VK_ARCHIVE_GROUP_ID,
-    VIDEO_MIN_DURATION,
-    VIDEO_MAX_DURATION,
-    AUDIO_MIN_DURATION,
-    VK_MAX_ATTACHMENTS,
-)
-
 
 unprocessed_msgs_queue = queue.Queue()
 processing_queue = queue.Queue()
 
 
-def remove_file_if_exist(file_path: str):
-    """TODO
+def remove_file_if_exist(file_path: str) -> None:
+    """TODO.
 
     Args:
     ----
@@ -51,7 +49,7 @@ def remove_file_if_exist(file_path: str):
 
 
 def is_converted_vk_video(vk_video_content_id: str) -> bool:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -68,7 +66,7 @@ def is_converted_vk_video(vk_video_content_id: str) -> bool:
 
 
 def process_converted_vk_video(video_content_id: str) -> str | None:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -79,12 +77,9 @@ def process_converted_vk_video(video_content_id: str) -> str | None:
         Optional[str]: _description_
 
     """
-    archive_group_audio_content_id = None
-
     db = __init__.converted_videos_content_id_to_audio_content_id.get_value()
-    archive_group_audio_content_id = dict(db)[video_content_id]
+    return dict(db)[video_content_id]
 
-    return archive_group_audio_content_id
 
 
 def process_non_converted_vk_video(
@@ -92,7 +87,7 @@ def process_non_converted_vk_video(
     vk_video_obj: dict,
     video_file_name: str,
 ) -> str | None:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -169,15 +164,13 @@ def process_non_converted_vk_video(
                 "-" + VK_ARCHIVE_GROUP_ID + "_" + str(archive_group_content_id)
             )
     except Exception:
-        try:
+        with contextlib.suppress(Exception):
             VkAudioService.delete_audio(audio_content_id)
-        except Exception:
-            ...
     return archive_group_content_id
 
 
 def get_author_name(video_info):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -210,7 +203,7 @@ def get_author_name(video_info):
 
 
 def get_player_link_from_vk_video_obj(video):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -222,7 +215,7 @@ def get_player_link_from_vk_video_obj(video):
 
     """
     if video.get("platform") == VkVideoPlatform.VK.value:
-        for key in dict(video["files"]).keys():
+        for key in dict(video["files"]):
             if "hls" in key:
                 player_link = video["files"][key]
                 break
@@ -235,7 +228,7 @@ def get_player_link_from_vk_video_obj(video):
 def process_vk_video(vk_video_obj: dict,
                      video_file_name: str) -> tuple[str | None,
                                                     bool]:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -287,7 +280,7 @@ def process_vk_video(vk_video_obj: dict,
 
 
 def send_replied_msg_else_not(vk_session, **send_msg_args):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -311,8 +304,8 @@ def send_audios_to_user(
     msg: dict,
     videos: list[dict],
     vk_audio_content_ids: list[str],
-):
-    """TODO
+) -> None:
+    """TODO.
 
     Args:
     ----
@@ -325,7 +318,7 @@ def send_audios_to_user(
     if len(videos) == 1 and len(vk_audio_content_ids) == 0:
         error_msg_text = user_messages.video_not_support()
     elif len(videos) > 1:
-        if len(vk_audio_content_ids
+        if len(vk_audio_content_ids,
                ) and len(videos) - len(vk_audio_content_ids):
             error_msg_text = user_messages.failed_to_convert_part_many()
         elif len(vk_audio_content_ids) == 0:
@@ -366,8 +359,8 @@ def send_audios_to_user(
         )
 
 
-def need_process_msg(msg):
-    """TODO
+def need_process_msg(msg) -> bool:
+    """TODO.
 
     Args:
     ----
@@ -385,8 +378,8 @@ def need_process_msg(msg):
     return True
 
 
-def process_msg(msg):
-    """TODO
+def process_msg(msg) -> None:
+    """TODO.
 
     Args:
     ----
@@ -452,8 +445,8 @@ def edit_vk_audio_if_video_public_or_non_vk(
     video_id,
     archive_group_content_id,
     new_video,
-):
-    """TODO
+) -> None:
+    """TODO.
 
     Args:
     ----
@@ -474,8 +467,8 @@ def edit_vk_audio_if_video_public_or_non_vk(
         )
 
 
-def process_msg_new(msg_id):
-    """TODO
+def process_msg_new(msg_id) -> None:
+    """TODO.
 
     Args:
     ----
@@ -490,8 +483,7 @@ def process_msg_new(msg_id):
 
     try:
         process_msg(msg)
-    except Exception as error:
-        pprint(error)
+    except Exception:
         __init__.error_message_ids += [msg_id]
         logger.info(
             f"Не удалось обработать сообщение с id = {msg_id}. Перехожу к следующему сообщению.",
@@ -502,7 +494,7 @@ def process_msg_new(msg_id):
 
 
 def get_last_unanswered_msg_id(vk_session: VkApi):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -513,15 +505,14 @@ def get_last_unanswered_msg_id(vk_session: VkApi):
         _type_: _description_
 
     """
-    result = vk_session.get_api().messages.getConversations(
+    return vk_session.get_api().messages.getConversations(
         count=1,
     )["items"][0]["last_message"]["id"]
 
-    return result
 
 
-def process_unanswered_messages():
-    """TODO"""
+def process_unanswered_messages() -> None:
+    """TODO."""
     logger.info(
         "Начинаю проверять неотвеченные сообщения." +
         f" Текущий id последнего отвеченного сообщения = {__init__.last_answered_msg_id}",
@@ -555,7 +546,7 @@ def process_unanswered_messages():
 
 
 def get_right_messages_word(num):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -578,8 +569,8 @@ def get_right_messages_word(num):
     return word
 
 
-def send_msg_if_queued(msg_id, msg_peer_id=None):
-    """TODO
+def send_msg_if_queued(msg_id, msg_peer_id=None) -> None:
+    """TODO.
 
     Args:
     ----
@@ -610,7 +601,7 @@ def send_msg_if_queued(msg_id, msg_peer_id=None):
                     "Отправил сообщение в очередь ожидания.",
                     "Очередь перед этим сообщением:",
                     f"{count} {get_right_messages_word(count)}.",
-                ]
+                ],
             ),
             reply_to=msg_id,
             user_id=msg_peer_id,
@@ -619,8 +610,8 @@ def send_msg_if_queued(msg_id, msg_peer_id=None):
         )
 
 
-def process_longpoll():
-    """TODO"""
+def process_longpoll() -> None:
+    """TODO."""
     logger.info("Начинаю получать сообщения через лонгполл")
 
     for event in __init__.vk_bot_longpoll.listen():
@@ -636,8 +627,8 @@ def process_longpoll():
             unprocessed_msgs_queue.put(msg_id)
 
 
-def convert_processor():
-    """TODO"""
+def convert_processor() -> None:
+    """TODO."""
     while True:
         msg_id = unprocessed_msgs_queue.get()
         processing_queue.put(msg_id)
@@ -645,19 +636,18 @@ def convert_processor():
         processing_queue.get()
 
 
-def main_bot():
-    """TODO"""
+def main_bot() -> None:
+    """TODO."""
     while True:
         try:
             logger.info("Запуск бота...")
             # process_unanswered_messages()
             process_longpoll()
-        except Exception as unpredicted_error:
+        except Exception:
             logger.info(
                 "\n" * 2 + "#" * 30 + "\n" * 2 +
                 "Произошла непредвиденная ошибка.",
             )
-            pprint(unpredicted_error)
             logger.info("\n" * 2 + "#" * 30 + "\n")
             logger.info("Перезапуск бота..." + "\n")
 

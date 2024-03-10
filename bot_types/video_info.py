@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 from dataclasses import dataclass
 
@@ -8,7 +7,7 @@ from bot_types.video_platform import VideoPlatform
 
 @dataclass
 class VideoInfo:
-    """TODO"""
+    """TODO."""
 
     title: str
     author: str

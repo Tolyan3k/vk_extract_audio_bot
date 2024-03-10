@@ -1,12 +1,11 @@
-"""TODO
-"""
+"""TODO."""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class AudioConvertSettings:
-    """TODO"""
+    """TODO."""
 
     min_duration: int
     # max_duration: int

@@ -1,6 +1,5 @@
 # pylint: disable=invalid-name
-"""TODO
-"""
+"""TODO."""
 
 import functools
 import os
@@ -25,7 +24,7 @@ from config import *
 
 
 def auth_handler():
-    """TODO
+    """TODO.
 
     Returns
     -------
@@ -44,7 +43,7 @@ def captcha_handler(
     vk_bot_group_id: int,
     vk_user_id: int,
 ):
-    """TODO
+    """TODO.
 
     Args:
     ----

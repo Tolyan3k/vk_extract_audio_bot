@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import os
 import shutil
@@ -9,7 +8,6 @@ from pydantic import DirectoryPath
 
 from services.extra import File
 from services.extractor import AudioExtractor
-
 
 TEST_DIR = DirectoryPath("./tests/.temp")
 shutil.rmtree(TEST_DIR, ignore_errors=True)
@@ -40,16 +38,16 @@ ALL_URLS = [
 
 
 class TestExtractor:
-    """TODO"""
+    """TODO."""
 
-    def test_free_pass(self):
-        """TODO"""
+    def test_free_pass(self) -> None:
+        """TODO."""
 
     class TestUrl:
-        """TODO"""
+        """TODO."""
 
-        def test_extract_audio(self):
-            """TODO"""
+        def test_extract_audio(self) -> None:
+            """TODO."""
             for url in ALL_URLS:
                 temp = File(
                     dirpath=TEST_DIR,

@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import math
 
@@ -12,7 +11,7 @@ from config import BOT_WORK_DIRS, VK_MAX_AUDIOFILE_SIZE_MB
 
 
 class ConverterService:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -30,7 +29,7 @@ class ConverterService:
 
     @staticmethod
     def has_audio(video_file_name: str) -> bool:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -56,7 +55,7 @@ class ConverterService:
         video_file_name: str,
         audio_convert_settings: AudioConvertSettings,
     ) -> str:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -119,7 +118,7 @@ class ConverterService:
                         audio_clip_fps,
                         bitrate=bit_rate,
                     )
-            except Exception as error:
-                raise error
+            except Exception:
+                raise
 
         return video_file_name[:-3] + "mp3"

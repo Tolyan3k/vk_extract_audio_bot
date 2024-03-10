@@ -1,11 +1,10 @@
-"""TODO
-"""
+"""TODO."""
 
 import ZODB
 
 
 class ZodbVariable:
-    """TODO"""
+    """TODO."""
 
     def __init__(self, zodb_db: ZODB.DB, var_name: str) -> None:
 
@@ -13,8 +12,8 @@ class ZodbVariable:
         self._var_name = var_name
 
     # Methods
-    def set_value(self, value):
-        """TODO
+    def set_value(self, value) -> None:
+        """TODO.
 
         Args:
         ----
@@ -25,7 +24,7 @@ class ZodbVariable:
             conn.root()[self._var_name] = value
 
     def get_value(self):
-        """TODO
+        """TODO.
 
         Returns
         -------
@@ -35,8 +34,8 @@ class ZodbVariable:
         with self._zodb_db.transaction() as conn:
             return conn.root()[self._var_name]
 
-    def exist(self):
-        """TODO
+    def exist(self) -> bool:
+        """TODO.
 
         Returns
         -------
@@ -49,10 +48,10 @@ class ZodbVariable:
             return False
 
     # ================================================
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.get_value().__repr__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_value().__str__()
 
     # Binary operators

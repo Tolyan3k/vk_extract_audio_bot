@@ -1,12 +1,11 @@
-"""TODO
-"""
+"""TODO."""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class AudioInfo:
-    """TODO"""
+    """TODO."""
 
     artist: str = ""
     title: str = ""

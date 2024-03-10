@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import os
 import shutil
@@ -9,7 +8,6 @@ from pydantic import DirectoryPath, NewPath
 
 from services.downloader import DownloadedFile, Downloader
 from services.extra import File
-
 
 TEST_DIR = "./tests/.temp"
 test_dir = DirectoryPath(TEST_DIR)
@@ -27,40 +25,43 @@ PUBLIC_URLS = [
 
 
 def is_exists_and_file(filepath: File):
-    """TODO
+    """TODO.
 
     Args:
+    ----
         filepath (File): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     np = NewPath(f"{filepath}")
     return np.exists() and np.is_file()    # pylint: disable=no-member
 
 
 class TestYT:
-    """TODO"""
+    """TODO."""
 
-    def test_nop(self):
-        """TODO"""
+    def test_nop(self) -> None:
+        """TODO."""
 
     class TestVideoInfo:
-        """TODO"""
+        """TODO."""
 
-        def test_get_info_works(self):
-            """TODO"""
+        def test_get_info_works(self) -> None:
+            """TODO."""
             for url in PUBLIC_URLS:
                 Downloader.get_video_info(url)
 
     class TestLinks:
-        """TODO"""
+        """TODO."""
 
         class TestDownloadOnlyVideo:
-            """TODO"""
+            """TODO."""
 
-            def test_downloads(self):
-                """TODO"""
+            def test_downloads(self) -> None:
+                """TODO."""
                 for url in PUBLIC_URLS:
                     to = File(
                         dirpath=TEST_DIR,
@@ -70,14 +71,14 @@ class TestYT:
                     assert is_exists_and_file(dlf.filepath)
                     os.remove(dlf.filepath.get_str())
 
-            def test_is_real_video(self):
-                """TODO"""
+            def test_is_real_video(self) -> None:
+                """TODO."""
 
         class TestDownloadOnlyAudio:
-            """TODO"""
+            """TODO."""
 
-            def test_downloads(self):
-                """TODO"""
+            def test_downloads(self) -> None:
+                """TODO."""
                 for url in PUBLIC_URLS:
                     to = File(
                         dirpath=TEST_DIR,
@@ -87,14 +88,14 @@ class TestYT:
                     assert is_exists_and_file(dlf.filepath)
                     os.remove(dlf.filepath.get_str())
 
-            def test_is_real_audio(self):
-                """TODO"""
+            def test_is_real_audio(self) -> None:
+                """TODO."""
 
         class TestDownloadAny:
-            """TODO"""
+            """TODO."""
 
-            def test_first_audio(self):
-                """Must be only audio"""
+            def test_first_audio(self) -> None:
+                """Must be only audio."""
                 for url in PUBLIC_URLS:
                     to = File(
                         dirpath=TEST_DIR,
@@ -108,8 +109,8 @@ class TestYT:
                     assert is_exists_and_file(dlf.filepath)
                     os.remove(dlf.filepath.get_str())
 
-            def test_first_video(self):
-                """Must be only video"""
+            def test_first_video(self) -> None:
+                """Must be only video."""
                 for url in PUBLIC_URLS:
                     to = File(
                         dirpath=TEST_DIR,

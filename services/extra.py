@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import pathvalidate
 from loguru import logger
@@ -13,14 +12,13 @@ from pydantic import (
     model_validator,
 )
 
-
 class_config = {
     "validate_assignment": True,
 }
 
 
 class File(BaseModel, **class_config):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -40,7 +38,7 @@ class File(BaseModel, **class_config):
     filename: str
 
     def get_str(self) -> str:
-        """TODO
+        """TODO.
 
         Returns
         -------
@@ -52,7 +50,7 @@ class File(BaseModel, **class_config):
         return filepath
 
     def as_filepath(self) -> FilePath:
-        """TODO
+        """TODO.
 
         Returns
         -------
@@ -67,7 +65,7 @@ class File(BaseModel, **class_config):
     @field_validator("filename")
     @classmethod
     def check_filename(cls, filename: str, _: ValidationInfo) -> str:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -86,7 +84,7 @@ class File(BaseModel, **class_config):
 
     @model_validator(mode="after")
     def check_filepath(self) -> "File":
-        """TODO
+        """TODO.
 
         Raises
         ------
@@ -100,7 +98,8 @@ class File(BaseModel, **class_config):
         filepath = NewPath(self.get_str())
         logger.debug(f"Checking is filepath exists and file: {filepath}")
         if filepath.exists() and not filepath.is_file():    # pylint: disable=no-member
-            raise ValueError("Existing filepath points not to file")
+            msg = "Existing filepath points not to file"
+            raise ValueError(msg)
         logger.debug("Checking filepath valid")
         pathvalidate.validate_filepath(filepath)
         return self

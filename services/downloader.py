@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 from enum import Enum
 
@@ -11,7 +10,7 @@ from .extra import File
 
 
 class VideoInfo(BaseModel):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -32,8 +31,8 @@ class VideoInfo(BaseModel):
     title: str
     duration: float
 
-    def get_name(self):
-        """TODO
+    def get_name(self) -> str:
+        """TODO.
 
         Returns
         -------
@@ -44,7 +43,7 @@ class VideoInfo(BaseModel):
 
 
 class DownloadedFile(BaseModel):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -53,7 +52,7 @@ class DownloadedFile(BaseModel):
     """
 
     class Type(Enum):
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -73,7 +72,7 @@ Type = DownloadedFile.Type
 
 
 class Downloader:
-    """TODO
+    """TODO.
 
     Raises
     ------
@@ -87,7 +86,7 @@ class Downloader:
 
     @staticmethod
     def get_video_info(url: AnyUrl) -> VideoInfo:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -121,7 +120,7 @@ class Downloader:
         to: File,
         try_first: Type,
     ) -> DownloadedFile:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -151,7 +150,7 @@ class Downloader:
 
     @staticmethod
     def download_video(info: AnyUrl | VideoInfo, to: File) -> DownloadedFile:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -167,7 +166,7 @@ class Downloader:
 
     @staticmethod
     def download_audio(info: AnyUrl | VideoInfo, to: File) -> DownloadedFile:
-        """TODO
+        """TODO.
 
         Args:
         ----

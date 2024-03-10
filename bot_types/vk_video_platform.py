@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 from enum import Enum
 
@@ -7,7 +6,7 @@ from bot_types.video_platform import VideoPlatform
 
 
 class VkVideoPlatform(Enum):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -22,7 +21,7 @@ class VkVideoPlatform(Enum):
 def video_platform_to_vk_video_platform(
     video_platform: VideoPlatform,
 ) -> VkVideoPlatform | None:
-    """TODO
+    """TODO.
 
     Args:
     ----

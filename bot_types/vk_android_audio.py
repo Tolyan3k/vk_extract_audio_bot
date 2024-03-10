@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import hashlib
 import random
@@ -11,13 +10,12 @@ import urllib
 
 import requests
 
-
 RPS = 5
 RPS_DELAY = 1 / RPS
 
 
 class LastRpsRequests:
-    """TODO"""
+    """TODO."""
 
     def __init__(self, rps) -> None:
         self.rps = rps
@@ -28,7 +26,7 @@ class LastRpsRequests:
         # self.last_request_time = 0
 
     def can_request(self) -> bool:
-        """TODO
+        """TODO.
 
         Returns
         -------
@@ -38,7 +36,7 @@ class LastRpsRequests:
         return self.get_delay() == 0.0
 
     def get_delay(self) -> float:
-        """TODO
+        """TODO.
 
         Returns
         -------
@@ -63,7 +61,7 @@ class LastRpsRequests:
         # return max(0.0, (1 / self.rps + 0.1) - time_diff)
 
     def timestamp(self) -> None:
-        """TODO"""
+        """TODO."""
         self.request_times[self.last_rps_request_id] = time.time()
 
         if not self.full and self.last_rps_request_id + 1 == len(
@@ -77,7 +75,7 @@ class LastRpsRequests:
 
 
 class VkAndroidApi:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -120,7 +118,7 @@ class VkAndroidApi:
         token=None,
         secret=None,
         v=5.95,
-    ):
+    ) -> None:
         # pylint: disable=too-many-arguments
         self.v = v
         self.lock = threading.Lock()
@@ -141,7 +139,8 @@ class VkAndroidApi:
                                              password),
             ).json()
             if "error" in answer:
-                raise PermissionError("invalid login|password!")
+                msg = "invalid login|password!"
+                raise PermissionError(msg)
             self.secret = answer["secret"]
             self.token = answer["access_token"]
 
@@ -150,7 +149,7 @@ class VkAndroidApi:
             self.method("auth.refreshToken", lang="ru")    # pylint: disable=expression-not-assigned
 
     def method(self, method, **params):
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -211,7 +210,7 @@ class VkAndroidApi:
     _pattern = re.compile(r"/[a-zA-Z\d]{6,}(/.*?[a-zA-Z\d]+?)/index.m3u8()")
 
     def to_mp3(self, url):
-        """TODO
+        """TODO.
 
         Args:
         ----

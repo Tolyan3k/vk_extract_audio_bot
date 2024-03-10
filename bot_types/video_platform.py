@@ -1,12 +1,11 @@
-"""TODO
-"""
+"""TODO."""
 
 import re
 from enum import IntEnum, auto
 
 
 class VideoPlatform(IntEnum):
-    """TODO
+    """TODO.
 
     Args:
     ----

@@ -1,8 +1,6 @@
-"""TODO
-"""
+"""TODO."""
 
 import os
-
 
 DEBUG = False
 

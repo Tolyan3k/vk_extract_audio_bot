@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import os
 import shutil
@@ -13,7 +12,7 @@ from .extra import File
 
 
 class AudioFile(BaseModel):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -26,7 +25,7 @@ class AudioFile(BaseModel):
 
 
 class ExtractorOptions(BaseModel):
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -41,7 +40,7 @@ class ExtractorOptions(BaseModel):
 
 
 class AudioExtractor:
-    """TODO
+    """TODO.
 
     Raises
     ------
@@ -55,7 +54,7 @@ class AudioExtractor:
 
     @staticmethod
     def extract_from_url(url: AnyUrl, temp: File, to: File) -> AudioFile:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -69,7 +68,8 @@ class AudioExtractor:
 
         """
         if temp == to:
-            raise ValueError("Temp file path and target file path must differ")
+            msg = "Temp file path and target file path must differ"
+            raise ValueError(msg)
         any_f = Downloader.download_any(url, temp, DownloadedFile.Type.AUDIO)
         aud_f = AudioExtractor.extract_from_file(any_f, to)
         os.remove(temp.get_str())
@@ -77,7 +77,7 @@ class AudioExtractor:
 
     @staticmethod
     def extract_from_file(f: DownloadedFile, to: File) -> AudioFile:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -94,8 +94,9 @@ class AudioExtractor:
 
         """
         if f.filepath == to:
+            msg = "Downloaded file path and target file path must have differents paths"
             raise ValueError(
-                "Downloaded file path and target file path must have differents paths",
+                msg,
             )
         if f.filetype == DownloadedFile.Type.AUDIO:
             if f.filepath != to:

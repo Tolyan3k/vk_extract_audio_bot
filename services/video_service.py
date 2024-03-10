@@ -1,5 +1,4 @@
-"""TODO
-"""
+"""TODO."""
 
 import yt_dlp
 
@@ -10,7 +9,7 @@ from bot_types.video_platform import VideoPlatform
 
 
 class VideoService:
-    """TODO
+    """TODO.
 
     Args:
     ----
@@ -29,7 +28,7 @@ class VideoService:
 
     @staticmethod
     def get_video_info(link: str) -> VideoInfo:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -49,7 +48,8 @@ class VideoService:
         with yt_dlp.YoutubeDL({}) as ydl:
             info_dict = ydl.extract_info(link, download=False)
             if info_dict is None:
-                raise Exception("Не удалось извлечь информацию из видео")
+                msg = "Не удалось извлечь информацию из видео"
+                raise Exception(msg)
 
             if info_dict["extractor"] == "vk":
                 platform = VideoPlatform.VK
@@ -67,7 +67,7 @@ class VideoService:
 
     @staticmethod
     def get_video_info_from_vk_video(vk_video_obj: dict) -> VideoInfo:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -101,7 +101,7 @@ class VideoService:
         download_settings: VideoDownloadSettings,
         video_info: VideoInfo = None,
     ) -> str:
-        """TODO
+        """TODO.
 
         Args:
         ----
@@ -140,7 +140,7 @@ class VideoService:
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([link])
-        except Exception as error:
-            raise error
+        except Exception:
+            raise
 
         return f"{download_settings.file_name}.mp4"
