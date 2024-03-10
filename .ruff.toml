@@ -1,0 +1,55 @@
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+line-length = 100
+indent-width = 4
+
+target-version = "py310"
+
+[lint]
+select = [ "ALL" ]
+ignore = [ 
+    "ANN101", "ANN202", "ANN204",
+    "RUF001", "RUF003", 
+    "D105",
+    "N999",
+    "B017", "PT011", "BLE001", "TRY002", # всё про Exception
+]
+fixable = [ "ALL" ]
+
+[lint.per-file-ignores]
+"tests/*" = [ "S101" ] # disable assert checking
+"bot_types/zodb_variable.py" = [ "D105", "ANN001" ] # disable magic documenting, type checking
+
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 20
