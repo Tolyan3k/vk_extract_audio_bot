@@ -14,7 +14,7 @@ from services.extra import File
 TEST_DIR = "./tests/.temp"
 test_dir = DirectoryPath(TEST_DIR)
 shutil.rmtree(test_dir, ignore_errors=True)
-test_dir.mkdir()
+test_dir.mkdir()    # pylint: disable=no-member
 
 PUBLIC_URLS = [
     # 'https://youtu.be/5jfPeClZF8M',
@@ -27,28 +27,36 @@ PUBLIC_URLS = [
 
 
 def is_exists_and_file(filepath: File):
+    """TODO
+
+    Args:
+        filepath (File): _description_
+
+    Returns:
+        _type_: _description_
+    """
     np = NewPath(f"{filepath}")
-    return np.exists() and np.is_file()
+    return np.exists() and np.is_file()    # pylint: disable=no-member
 
 
-class Test_YT:
+class TestYT:
     """TODO"""
 
     def test_nop(self):
         """TODO"""
 
-    class Test_VideoInfo:
+    class TestVideoInfo:
         """TODO"""
 
         def test_get_info_works(self):
             """TODO"""
             for url in PUBLIC_URLS:
-                info = Downloader.get_video_info(url)
+                Downloader.get_video_info(url)
 
-    class Test_Links:
+    class TestLinks:
         """TODO"""
 
-        class Test_DownloadOnlyVideo:
+        class TestDownloadOnlyVideo:
             """TODO"""
 
             def test_downloads(self):
@@ -65,7 +73,7 @@ class Test_YT:
             def test_is_real_video(self):
                 """TODO"""
 
-        class Test_DownloadOnlyAudio:
+        class TestDownloadOnlyAudio:
             """TODO"""
 
             def test_downloads(self):
@@ -82,7 +90,7 @@ class Test_YT:
             def test_is_real_audio(self):
                 """TODO"""
 
-        class Test_DownloadAny:
+        class TestDownloadAny:
             """TODO"""
 
             def test_first_audio(self):

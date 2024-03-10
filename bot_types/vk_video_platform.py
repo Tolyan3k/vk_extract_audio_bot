@@ -3,7 +3,7 @@
 
 from enum import Enum
 
-from bot_types.VideoPlatform import VideoPlatform
+from bot_types.video_platform import VideoPlatform
 
 
 class VkVideoPlatform(Enum):
@@ -33,9 +33,10 @@ def video_platform_to_vk_video_platform(
         Optional[VkVideoPlatform]: _description_
 
     """
-    if video_platform == VideoPlatform.VK:
-        return VkVideoPlatform.VK
-    elif video_platform == VideoPlatform.YOUTUBE:
-        return VkVideoPlatform.YOUTUBE
-    else:
-        return None
+    match video_platform:
+        case VideoPlatform.VK:
+            return VideoPlatform.VK
+        case VideoPlatform.YOUTUBE:
+            return VkVideoPlatform.YOUTUBE
+        case _:
+            return None

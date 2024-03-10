@@ -12,7 +12,7 @@ from services.extra import File
 
 TEST_DIR = DirectoryPath("./tests/.temp")
 shutil.rmtree(TEST_DIR, ignore_errors=True)
-TEST_DIR.mkdir(exist_ok=True)
+TEST_DIR.mkdir(exist_ok=True)    # pylint: disable=no-member
 
 
 def create_and_delete_file(filepath: str):
@@ -24,11 +24,11 @@ def create_and_delete_file(filepath: str):
 
     """
     np = NewPath(filepath)
-    np.touch()
+    np.touch()    # pylint: disable=no-member
     os.remove(np)
 
 
-class Test_File:
+class TestFile:
     """TODO"""
 
     def test_nop(self):
@@ -46,33 +46,33 @@ class Test_File:
 
     def test_empty_filename(self):
         """TODO"""
-        with pytest.raises(Exception) as err:
-            f = File(dirpath=".", filename="")
+        with pytest.raises(Exception):
+            File(dirpath=".", filename="")
 
     def test_not_exisiting_dirpath(self):
         """TODO"""
-        with pytest.raises(Exception) as err:
-            f = File(dirpath="not-existsing-dirpath", filename="filename")
+        with pytest.raises(Exception):
+            File(dirpath="not-existsing-dirpath", filename="filename")
 
     def test_filepath_points_to_dir(self):
         """TODO"""
-        with pytest.raises(Exception) as err:
-            f = File(dirpath="tests", filename=".temp")
+        with pytest.raises(Exception):
+            File(dirpath="tests", filename=".temp")
 
     def test_filename_deprecated_chars(self):
         """TODO"""
-        with pytest.raises(Exception) as err:
-            f = File(dirpath="", filename="!@#$%^&*()?_.txt")
+        with pytest.raises(Exception):
+            File(dirpath="", filename="!@#$%^&*()?_.txt")
 
     def test_filename_has_dir(self):
         """TODO"""
-        with pytest.raises(Exception) as err:
-            f = File(dirpath="", filename="tests/file.txt")
+        with pytest.raises(Exception):
+            File(dirpath="", filename="tests/file.txt")
 
     def test_change_valid_filename_to_another(self):
         """TODO"""
         f = File(dirpath="", filename="valid filename")
-        # with pytest.raises(Exception) as err:
+        # with pytest.raises(Exception):
         f.filename = "another valid filename"
 
     def test_change_valid_dirpath_to_another(self):
@@ -83,13 +83,13 @@ class Test_File:
     def test_change_valid_dirpath_to_invalid(self):
         """TODO"""
         f = File(dirpath="", filename="filename")
-        with pytest.raises(Exception) as err:
+        with pytest.raises(Exception):
             f.dirpath = "!@#$%^&*()?_.txt"
 
     def test_change_valid_filename_to_invalid(self):
         """TODO"""
         f = File(dirpath="", filename="valid filename")
-        with pytest.raises(Exception) as err:
+        with pytest.raises(Exception):
             f.filename = "!@#$%^&*()?_.txt"
 
     def test_str_eq_get_str(self):
@@ -106,6 +106,6 @@ class Test_File:
         """TODO"""
         f = File(dirpath="", filename="filename")
         np = NewPath(f"{f}")
-        np.touch()
+        np.touch()    # pylint: disable=no-member
         f.as_filepath()
         os.remove(f"{np}")

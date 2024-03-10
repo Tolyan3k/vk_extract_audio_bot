@@ -14,9 +14,9 @@ from pydantic import (
 )
 
 
-class_config = dict(
-    validate_assignment=True,
-)
+class_config = {
+    "validate_assignment": True,
+}
 
 
 class File(BaseModel, **class_config):
@@ -66,7 +66,7 @@ class File(BaseModel, **class_config):
 
     @field_validator("filename")
     @classmethod
-    def check_filename(cls, filename: str, info: ValidationInfo) -> str:
+    def check_filename(cls, filename: str, _: ValidationInfo) -> str:
         """TODO
 
         Args:
@@ -99,7 +99,7 @@ class File(BaseModel, **class_config):
         """
         filepath = NewPath(self.get_str())
         logger.debug(f"Checking is filepath exists and file: {filepath}")
-        if filepath.exists() and not filepath.is_file():
+        if filepath.exists() and not filepath.is_file():    # pylint: disable=no-member
             raise ValueError("Existing filepath points not to file")
         logger.debug("Checking filepath valid")
         pathvalidate.validate_filepath(filepath)

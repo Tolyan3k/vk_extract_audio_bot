@@ -14,15 +14,24 @@ from vk_api.bot_longpoll import VkBotEventType
 
 import __init__
 import user_messages
-from bot_types.AudioConvertSettings import AudioConvertSettings
-from bot_types.AudioInfo import AudioInfo
-from bot_types.VideoDownloadSettings import VideoDownloadSettings
-from bot_types.VkVideoPlatform import VkVideoPlatform
-from config import *
-from services.ConverterService import ConverterService
-from services.VideoService import VideoService
-from services.VkAudioService import VkAudioService
-from services.VkMessageService import VkMesasgeService
+from bot_types.audio_convert_settings import AudioConvertSettings
+from bot_types.audio_info import AudioInfo
+from bot_types.video_download_settings import VideoDownloadSettings
+from bot_types.vk_video_platform import VkVideoPlatform
+from services.converter_service import ConverterService
+from services.video_service import VideoService
+from services.vk_audio_service import VkAudioService
+from services.vk_message_service import VkMesasgeService
+from config import (
+    BOT_WORK_DIRS,
+    VK_MAIN_GROUP_ID,
+    VK_MAIN_GROUP_URL,
+    VK_ARCHIVE_GROUP_ID,
+    VIDEO_MIN_DURATION,
+    VIDEO_MAX_DURATION,
+    AUDIO_MIN_DURATION,
+    VK_MAX_ATTACHMENTS,
+)
 
 
 unprocessed_msgs_queue = queue.Queue()
@@ -149,6 +158,7 @@ def process_non_converted_vk_video(
         remove_file_if_exist(BOT_WORK_DIRS["videos"] + f"/{video_file_name}")
         remove_file_if_exist(BOT_WORK_DIRS["audios"] + f"/{audio_file_name}")
 
+    archive_group_content_id = None
     try:
         archive_group_content_id = VkAudioService.add_audio(
             audio_content_id,
@@ -158,14 +168,11 @@ def process_non_converted_vk_video(
             archive_group_content_id = (
                 "-" + VK_ARCHIVE_GROUP_ID + "_" + str(archive_group_content_id)
             )
-    except:
-        return None
-    finally:
+    except Exception:
         try:
             VkAudioService.delete_audio(audio_content_id)
-        except:
-            return None
-
+        except Exception:
+            ...
     return archive_group_content_id
 
 
@@ -293,7 +300,7 @@ def send_replied_msg_else_not(vk_session, **send_msg_args):
     """
     try:
         return vk_session.method("messages.send", send_msg_args)
-    except:
+    except Exception:
         if send_msg_args.get("reply_to"):
             send_msg_args.pop("reply_to")
 
@@ -318,7 +325,8 @@ def send_audios_to_user(
     if len(videos) == 1 and len(vk_audio_content_ids) == 0:
         error_msg_text = user_messages.video_not_support()
     elif len(videos) > 1:
-        if len(vk_audio_content_ids) and len(videos) - len(vk_audio_content_ids):
+        if len(vk_audio_content_ids
+               ) and len(videos) - len(vk_audio_content_ids):
             error_msg_text = user_messages.failed_to_convert_part_many()
         elif len(vk_audio_content_ids) == 0:
             error_msg_text = user_messages.failed_to_convert_all_many()
@@ -455,7 +463,7 @@ def edit_vk_audio_if_video_public_or_non_vk(
         new_video (_type_): _description_
 
     """
-    is_video_public = videos[video_id].get("is_private") == None
+    is_video_public = videos[video_id].get("is_private") is None
     is_platform_vk = videos[video_id].get("platform") is None
 
     if new_video and (is_video_public or not is_platform_vk):
@@ -523,7 +531,7 @@ def process_unanswered_messages():
         __init__.vk_main_group_api_session,
     )
     # while __init__.last_answered_msg_id != last_unanswered_msg_id:
-    for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1,
+    for msg_id in range(int(str(__init__.last_answered_msg_id)) + 1,
                         last_unanswered_msg_id + 1):
         # process_msg_new(msg_id)
         send_msg_if_queued(msg_id)
@@ -538,10 +546,12 @@ def process_unanswered_messages():
 
 
 # def add_unanswered_messages_to_queue():
-#     last_unanswered_msg_id = get_last_unanswered_msg_id(__init__.vk_main_group_api_session)
+#     last_unanswered_msg_id
+#       = get_last_unanswered_msg_id(__init__.vk_main_group_api_session)
 
-#     for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1, last_unanswered_msg_id + 1):
-#         unprocessed_msgs_queue.put(msg_id)
+# for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1,
+#                     last_unanswered_msg_id + 1):
+#     unprocessed_msgs_queue.put(msg_id)
 
 
 def get_right_messages_word(num):

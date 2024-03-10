@@ -42,18 +42,6 @@ class VideoInfo(BaseModel):
         """
         return f"{self.extractor}_{self.video_id}"
 
-    @staticmethod
-    def _to_video_info(yt_dlp_video_info: dict):
-        vi = yt_dlp_video_info
-        return VideoInfo(
-            url=vi["original_url"],
-            video_id=vi["id"],
-            extractor=vi["extractor"],
-            author=vi["uploader"],
-            title=vi["title"],
-            duration=vi["duration"],
-        )
-
 
 class DownloadedFile(BaseModel):
     """TODO
@@ -113,7 +101,19 @@ class Downloader:
         video_info = None
         with YoutubeDL() as yt_dlp:
             video_info = yt_dlp.extract_info(url, False)
-        return VideoInfo._to_video_info(video_info)
+        return Downloader._to_video_info(video_info)
+
+    @staticmethod
+    def _to_video_info(yt_dlp_video_info: dict):
+        vi = yt_dlp_video_info
+        return VideoInfo(
+            url=vi["original_url"],
+            video_id=vi["id"],
+            extractor=vi["extractor"],
+            author=vi["uploader"],
+            title=vi["title"],
+            duration=vi["duration"],
+        )
 
     @staticmethod
     def download_any(
@@ -142,9 +142,9 @@ class Downloader:
         if order[0] != try_first:
             order.reverse()
         errors = []
-        for type in order:
+        for media_type in order:
             try:
-                return Downloader._download(info, to, type)
+                return Downloader._download(info, to, media_type)
             except Exception as err:
                 errors.append(err)
         raise Exception(errors)
@@ -187,10 +187,9 @@ class Downloader:
         to: File,
         filetype: Type,
     ) -> DownloadedFile:
-        if type(info) is VideoInfo:
+        if isinstance(info, VideoInfo):
             return Downloader._download_vinfo(info, to, filetype)
-        else:
-            return Downloader._download_url(info, to, filetype)
+        return Downloader._download_url(info, to, filetype)
 
     @staticmethod
     def _download_url(url: AnyUrl, to: File, filetype: Type) -> DownloadedFile:

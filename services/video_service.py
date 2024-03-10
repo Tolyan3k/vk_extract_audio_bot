@@ -4,9 +4,9 @@
 import yt_dlp
 
 import config
-from bot_types.VideoDownloadSettings import VideoDownloadSettings
-from bot_types.VideoInfo import VideoInfo
-from bot_types.VideoPlatform import VideoPlatform
+from bot_types.video_download_settings import VideoDownloadSettings
+from bot_types.video_info import VideoInfo
+from bot_types.video_platform import VideoPlatform
 
 
 class VideoService:
@@ -85,7 +85,7 @@ class VideoService:
         else:
             author = vk_video_obj["owner_id"]
         duration = vk_video_obj["duration"]
-        is_public = vk_video_obj.get("is_private") == None
+        is_public = vk_video_obj.get("is_private") is None
 
         return VideoInfo(
             title=title,

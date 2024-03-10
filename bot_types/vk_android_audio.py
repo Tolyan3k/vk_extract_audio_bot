@@ -121,6 +121,7 @@ class VkAndroidApi:
         secret=None,
         v=5.95,
     ):
+        # pylint: disable=too-many-arguments
         self.v = v
         self.lock = threading.Lock()
         self.last_rps_requests = LastRpsRequests(RPS)
@@ -145,8 +146,8 @@ class VkAndroidApi:
             self.token = answer["access_token"]
 
             # Методы, "Открывающие" доступ к аудио. Без них, аудио получить не получится
-            self.method("execute.getUserInfo", func_v=9),
-            self.method("auth.refreshToken", lang="ru")
+            self.method("execute.getUserInfo", func_v=9)    # pylint: disable=expression-not-assigned
+            self.method("auth.refreshToken", lang="ru")    # pylint: disable=expression-not-assigned
 
     def method(self, method, **params):
         """TODO
@@ -163,8 +164,8 @@ class VkAndroidApi:
         url = (
             f"/method/{method}?v={self.v}&access_token={self.token}&device_id={self.device_id}"
             + "".join(
-                "&%s=%s" % (i,
-                            params[i]) for i in params if params[i] is not None
+                f"&{i}={param}" for i,
+                param in params.items() if param is not None
             )
         )
 
@@ -173,15 +174,14 @@ class VkAndroidApi:
         return self._send(url, params, method)
 
     def _send(self, url, params=None, method=None, headers=None):
-        hash = hashlib.md5((url + self.secret).encode()).hexdigest()
+        req_hash = hashlib.md5((url + self.secret).encode()).hexdigest()
 
         if method is not None and params is not None:
-            url = "/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(
-                method=method,
-                token=self.token,
-                device_id=self.device_id,
-                v=self.v,
-            ) + "".join(
+            token = self.token
+            device_id = self.device_id
+            v = self.v
+            url = f"/method/{method}?v={v}&access_token={token}&device_id={device_id}"
+            url += "".join(
                 "&" + i + "=" + urllib.parse.quote_plus(str(params[i]))
                 for i in params
                 if (params[i] is not None)
@@ -193,11 +193,11 @@ class VkAndroidApi:
 
             if headers is None:
                 response = self.session.get(
-                    "https://api.vk.com" + url + "&sig=" + hash,
+                    "https://api.vk.com" + url + "&sig=" + req_hash,
                 ).json()
             else:
                 response = self.session.get(
-                    "https://api.vk.com" + url + "&sig=" + hash,
+                    "https://api.vk.com" + url + "&sig=" + req_hash,
                     headers=headers,
                 ).json()
 

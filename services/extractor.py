@@ -69,7 +69,7 @@ class AudioExtractor:
 
         """
         if temp == to:
-            ValueError("Temp file path and target file path must differ")
+            raise ValueError("Temp file path and target file path must differ")
         any_f = Downloader.download_any(url, temp, DownloadedFile.Type.AUDIO)
         aud_f = AudioExtractor.extract_from_file(any_f, to)
         os.remove(temp.get_str())
@@ -114,7 +114,7 @@ class AudioExtractor:
         return False
 
     @staticmethod
-    def _extract_audio(vid_f: File, to: File, opts=None) -> None:
+    def _extract_audio(vid_f: File, to: File) -> None:
         v_clip = VideoFileClip(vid_f.get_str())
         a_clip = v_clip.audio
         a_clip.write_audiofile(to.get_str())

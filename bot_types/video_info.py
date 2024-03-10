@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from bot_types.VideoPlatform import VideoPlatform
+from bot_types.video_platform import VideoPlatform
 
 
 @dataclass

@@ -13,7 +13,7 @@ from services.extractor import AudioExtractor
 
 TEST_DIR = DirectoryPath("./tests/.temp")
 shutil.rmtree(TEST_DIR, ignore_errors=True)
-TEST_DIR.mkdir(exist_ok=True)
+TEST_DIR.mkdir(exist_ok=True)    # pylint: disable=no-member
 
 VK_URLS = [
     "https://vk.com/video202745946_456239031?list=5741411ffee8b2bea4",
@@ -39,13 +39,13 @@ ALL_URLS = [
 ]
 
 
-class Test_Extractor:
+class TestExtractor:
     """TODO"""
 
     def test_free_pass(self):
         """TODO"""
 
-    class Test_Url:
+    class TestUrl:
         """TODO"""
 
         def test_extract_audio(self):

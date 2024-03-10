@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """TODO
 """
 
@@ -11,9 +12,10 @@ import ZODB
 import ZODB.FileStorage
 from vk_api import VkApi
 from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
+from vkaudiotoken import TokenException
 
 from bot_types.vk_android_audio import VkAndroidApi
-from bot_types.ZodbVariable import ZodbVariable
+from bot_types.zodb_variable import ZodbVariable
 
 # from vk_audio import *
 # import pymongo
@@ -72,9 +74,8 @@ def captcha_handler(
     return captcha.try_again(key)
 
 
-os.makedirs(ZODB_DB_DIR, exist_ok=True)
-for dir in BOT_WORK_DIRS.values():
-    os.makedirs(dir, exist_ok=True)
+for bot_work_dir in [*BOT_WORK_DIRS.values(), ZODB_DB_DIR]:
+    os.makedirs(bot_work_dir, exist_ok=True)
 
 vk_user_session = VkApi(token=VK_USER_TOKEN)
 vk_main_group_api_session = VkApi(token=VK_MAIN_GROUP_TOKEN)
@@ -93,7 +94,8 @@ try:
         VK_USER_PASSWORD,
         pyotp.TOTP(VK_USER_2FA).now(),
     )["token"]
-except:    # Если получил код в момент, когда его время действия закончилось
+except (TokenException
+        ):    # Если получил код в момент, когда его время действия закончилось
     vk_audio_token = vkaudiotoken.get_vk_official_token(
         VK_USER_LOGIN,
         VK_USER_PASSWORD,
@@ -107,7 +109,7 @@ vk_audio_api.method("auth.refreshToken", lang="ru")
 vk_bot_longpoll = VkBotLongPoll(vk_main_group_api_session, VK_MAIN_GROUP_ID)
 
 if DEBUG:
-    debug_value = 1164    # 1047 # 998
+    DEBUG_VALUE = 1164    # 1047 # 998
 
     zodb_storage = ZODB.FileStorage.FileStorage(".db/.debug_db")
     zodb_db = ZODB.DB(zodb_storage)
@@ -127,10 +129,10 @@ if DEBUG:
         var_name="converted_videos_content_id_to_audio_content_id",
     )
 
-    last_answered_msg_id.set_value(debug_value)
+    last_answered_msg_id.set_value(DEBUG_VALUE)
     error_message_ids.set_value([])
     if not converted_videos_content_id_to_audio_content_id.exist():
-        converted_videos_content_id_to_audio_content_id.set_value(dict())
+        converted_videos_content_id_to_audio_content_id.set_value({})
 else:
     zodb_storage = ZODB.FileStorage.FileStorage(ZODB_DB_PATH)
     zodb_db = ZODB.DB(zodb_storage)
@@ -155,7 +157,7 @@ else:
     if not error_message_ids.exist():
         error_message_ids.set_value([])
     if not converted_videos_content_id_to_audio_content_id.exist():
-        converted_videos_content_id_to_audio_content_id.set_value(dict())
+        converted_videos_content_id_to_audio_content_id.set_value({})
 
     # db = converted_videos_content_id_to_audio_content_id.get_value()
     # # db.pop('138136673_456239965')

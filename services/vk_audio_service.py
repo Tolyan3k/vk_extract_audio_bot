@@ -3,8 +3,11 @@
 
 from vk_api.upload import VkUpload
 
-from __init__ import *
-from bot_types.AudioInfo import AudioInfo
+from bot_types.audio_info import AudioInfo
+from __init__ import (
+    vk_user_session,
+    vk_audio_api,
+)
 
 
 class VkAudioService:

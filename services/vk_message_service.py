@@ -3,11 +3,11 @@
 
 from vk_api import VkApi
 
-from bot_types.VideoPlatform import (
+from bot_types.video_platform import (
     VIDEO_PATTERNS_COMPILED_FULL,
     VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS,
 )
-from bot_types.VkVideoPlatform import (
+from bot_types.vk_video_platform import (
     video_platform_to_vk_video_platform,
 )
 
@@ -38,6 +38,7 @@ class VkMesasgeService:
         msg_data = vk_session.get_api().messages.getById(message_ids=msg_id)
         if msg_data["count"] == 1:
             return msg_data["items"][0]
+        return None
 
     @staticmethod
     def get_video_attachments_from_message(vk_msg: dict) -> list:
