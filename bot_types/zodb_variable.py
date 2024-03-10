@@ -11,12 +11,6 @@ class ZodbVariable:
 
         self._zodb_db = zodb_db
         self._var_name = var_name
-        # self.__mongo_client = mongo_client
-        # self.__database_name = database_name
-        # self.__collection_name = collection_name
-        # self.__object_id = object_id
-        # self.__var_name = var_name
-        # self.__var_value = self.__mongo_client[self.__database_name][self.__collection_name].find_one({'_id': ObjectId(self.__object_id)}, {'_id': 0, self.__var_name: 1})[self.__var_name]
 
     # Methods
     def set_value(self, value):
@@ -27,12 +21,6 @@ class ZodbVariable:
             value (_type_): _description_
 
         """
-        # self.__mongo_client[self.__database_name][self.__collection_name].update_one({
-        #     '_id': ObjectId(self.__object_id)
-        # }, {
-        #     '$set': {self.__var_name: value}
-        # })
-        # self.__var_value = value
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name] = value
 
@@ -46,7 +34,6 @@ class ZodbVariable:
         """
         with self._zodb_db.transaction() as conn:
             return conn.root()[self._var_name]
-        # return self.__var_value
 
     def exist(self):
         """TODO
@@ -126,34 +113,26 @@ class ZodbVariable:
 
     # Unary operators
     def __isub__(self, rhs):
-        # self.set_value(self.get_value().__sub__(rhs))
-        # self.__var_value = self.__var_value.__sub__(rhs)
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__isub__(rhs)
 
         return self
 
     def __iadd__(self, rhs):
-        # self.set_value(self.get_value().__add__(rhs))
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__iadd__(rhs)
-        # self.__var_value = self.__var_value.__add__(rhs)
 
         return self
 
     def __imul__(self, rhs):
-        # self.set_value(self.get_value().__mul__(rhs))
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__imul__(rhs)
-        # self.__var_value = self.__var_value.__mul__(rhs)
 
         return self
 
     def __idiv__(self, rhs):
-        # self.set_value(self.get_value().__div__(rhs))
         with self._zodb_db.transaction() as conn:
             conn.root()[self._var_name].__idiv__(rhs)
-        # self.__var_value = self.__var_value.__div__(rhs)
 
         return self
 
