@@ -1,7 +1,7 @@
 """TODO."""
 
-import os
 import shutil
+from pathlib import Path
 
 import pathvalidate
 from pydantic import DirectoryPath, NewPath
@@ -15,16 +15,12 @@ shutil.rmtree(test_dir, ignore_errors=True)
 test_dir.mkdir()    # pylint: disable=no-member
 
 PUBLIC_URLS = [
-    # 'https://youtu.be/5jfPeClZF8M',
-    # 'https://www.youtube.com/watch?v=mwKJfNYwvm800', # multiple dub tracks
-    # 'https://www.youtube.com/watch?v=Do5_wU9X1pc&t=15s',
     "https://www.youtube.com/watch?v=cdBK0-9gsFA",
     "https://www.youtube.com/watch?v=mwKJfNYwvm8",
-    # "https://www.youtube.com/watch?v=biYFsy1s2t0",
 ]
 
 
-def is_exists_and_file(filepath: File):
+def is_exists_and_file(filepath: File) -> bool:
     """TODO.
 
     Args:
@@ -69,7 +65,7 @@ class TestYT:
                     )
                     dlf = Downloader.download_video(url, to)
                     assert is_exists_and_file(dlf.filepath)
-                    os.remove(dlf.filepath.get_str())
+                    Path.unlink(dlf.filepath.get_str())
 
             def test_is_real_video(self) -> None:
                 """TODO."""
@@ -86,7 +82,7 @@ class TestYT:
                     )
                     dlf = Downloader.download_audio(url, to)
                     assert is_exists_and_file(dlf.filepath)
-                    os.remove(dlf.filepath.get_str())
+                    Path.unlink(dlf.filepath.get_str())
 
             def test_is_real_audio(self) -> None:
                 """TODO."""
@@ -107,7 +103,7 @@ class TestYT:
                         DownloadedFile.Type.AUDIO,
                     )
                     assert is_exists_and_file(dlf.filepath)
-                    os.remove(dlf.filepath.get_str())
+                    Path.unlink(dlf.filepath.get_str())
 
             def test_first_video(self) -> None:
                 """Must be only video."""
@@ -122,4 +118,4 @@ class TestYT:
                         DownloadedFile.Type.VIDEO,
                     )
                     assert is_exists_and_file(dlf.filepath)
-                    os.remove(dlf.filepath.get_str())
+                    Path.unlink(dlf.filepath.get_str())

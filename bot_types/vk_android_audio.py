@@ -1,12 +1,13 @@
 """TODO."""
 
 import hashlib
-import random
 import re
+import secrets
 import string
 import threading
 import time
 import urllib
+from typing import ClassVar
 
 import requests
 
@@ -17,13 +18,18 @@ RPS_DELAY = 1 / RPS
 class LastRpsRequests:
     """TODO."""
 
-    def __init__(self, rps) -> None:
+    def __init__(self, rps: int) -> None:
+        """TODO.
+
+        Args:
+        ----
+            rps (_type_): _description_
+
+        """
         self.rps = rps
         self.request_times = [0] * (rps)
         self.last_rps_request_id = 0
         self.full = False
-
-        # self.last_request_time = 0
 
     def can_request(self) -> bool:
         """TODO.
@@ -49,16 +55,10 @@ class LastRpsRequests:
                 (self.last_rps_request_id + 1) % self.rps]
 
             time_diff = current_time - last_rps_request_time
-            # print(time_diff)
 
             return max(0.0, (1 / self.rps) - time_diff)
 
         return 0.0
-        # current_time = time.time()
-        # time_diff = current_time - self.last_request_time
-        # print(time_diff)
-
-        # return max(0.0, (1 / self.rps + 0.1) - time_diff)
 
     def timestamp(self) -> None:
         """TODO."""
@@ -70,8 +70,6 @@ class LastRpsRequests:
 
         self.last_rps_request_id += 1
         self.last_rps_request_id %= len(self.request_times)
-
-        # self.last_request_time = time.time()
 
 
 class VkAndroidApi:
@@ -92,7 +90,8 @@ class VkAndroidApi:
 
     """
 
-    session = requests.Session()
+    session: ClassVar[requests.Session] = requests.Session()
+    # ruff: noqa: RUF012
     session.headers = {
         "User-Agent":
             "VKAndroidApp/4.13.1-1206 (Android 4.4.3; SDK 19; armeabi; ; ru)",
@@ -100,7 +99,7 @@ class VkAndroidApi:
             "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*",
     }
 
-    def _get_auth_params(self, login, password):
+    def _get_auth_params(self, login: str, password: str) -> dict:
         return {
             "grant_type": "password",
             "scope": "nohttps,audio",
@@ -111,22 +110,38 @@ class VkAndroidApi:
             "password": password,
         }
 
+    # pylint: disable=too-many-arguments
+    # ruff: noqa: PLR0913
     def __init__(
         self,
-        login=None,
-        password=None,
-        token=None,
-        secret=None,
-        v=5.95,
+        login: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
+        secret: str | None = None,
+        v: float = 5.95,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        """TODO.
+
+        Args:
+        ----
+            login (_type_, optional): _description_. Defaults to None.
+            password (_type_, optional): _description_. Defaults to None.
+            token (_type_, optional): _description_. Defaults to None.
+            secret (_type_, optional): _description_. Defaults to None.
+            v (float, optional): _description_. Defaults to 5.95.
+
+        Raises:
+        ------
+            PermissionError: _description_
+
+        """
         self.v = v
         self.lock = threading.Lock()
         self.last_rps_requests = LastRpsRequests(RPS)
 
         # Генерируем рандомный device_id
         self.device_id = "".join(
-            random.choice(string.ascii_lowercase + string.digits)
+            secrets.choice(string.ascii_lowercase + string.digits)
             for i in range(16)
         )
         if token is not None and secret is not None:
@@ -148,12 +163,13 @@ class VkAndroidApi:
             self.method("execute.getUserInfo", func_v=9)    # pylint: disable=expression-not-assigned
             self.method("auth.refreshToken", lang="ru")    # pylint: disable=expression-not-assigned
 
-    def method(self, method, **params):
+    def method(self, method: str, **params) -> dict:
         """TODO.
 
         Args:
         ----
             method (_type_): _description_
+            params (_type_): _description_
 
         Returns:
         -------
@@ -172,7 +188,14 @@ class VkAndroidApi:
         # обратите внимание - в даннаой ссылке нет urlencode параметров
         return self._send(url, params, method)
 
-    def _send(self, url, params=None, method=None, headers=None):
+    def _send(
+        self,
+        url: str,
+        params: dict | None = None,
+        method: str | None = None,
+        headers=None,
+    ) -> dict:
+        # ruff: noqa: S324
         req_hash = hashlib.md5((url + self.secret).encode()).hexdigest()
 
         if method is not None and params is not None:
@@ -186,7 +209,7 @@ class VkAndroidApi:
                 if (params[i] is not None)
             )
 
-        response = None
+        response: dict = None
         with self.lock:
             time.sleep(self.last_rps_requests.get_delay())
 
@@ -209,7 +232,7 @@ class VkAndroidApi:
 
     _pattern = re.compile(r"/[a-zA-Z\d]{6,}(/.*?[a-zA-Z\d]+?)/index.m3u8()")
 
-    def to_mp3(self, url):
+    def to_mp3(self, url: str) -> str:
         """TODO.
 
         Args:

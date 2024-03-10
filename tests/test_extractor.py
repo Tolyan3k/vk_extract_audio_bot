@@ -1,7 +1,7 @@
 """TODO."""
 
-import os
 import shutil
+from pathlib import Path
 
 import pathvalidate
 from pydantic import DirectoryPath
@@ -18,12 +18,8 @@ VK_URLS = [
 ]
 
 YT_URLS = [
-    # 'https://youtu.be/5jfPeClZF8M',
-    # 'https://www.youtube.com/watch?v=mwKJfNYwvm800', # multiple dub tracks
-    # 'https://www.youtube.com/watch?v=Do5_wU9X1pc&t=15s', # no age restrictions
     "https://www.youtube.com/watch?v=cdBK0-9gsFA",
     "https://www.youtube.com/watch?v=mwKJfNYwvm8",
-    # "https://www.youtube.com/watch?v=biYFsy1s2t0",
 ]
 
 RT_URLS = [
@@ -59,4 +55,4 @@ class TestExtractor:
                 )
                 af = AudioExtractor.extract_from_url(url, temp, to)
                 assert af.audiofile.as_filepath().exists()
-                os.remove(af.audiofile.get_str())
+                Path.unlink(af.audiofile.get_str())

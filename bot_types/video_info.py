@@ -11,8 +11,6 @@ class VideoInfo:
 
     title: str
     author: str
-    # link: str
     platform: VideoPlatform
     duration: int
     is_public: bool = False
-    # path: None | str

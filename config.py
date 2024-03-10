@@ -4,10 +4,6 @@ import os
 
 DEBUG = False
 
-# ENV FILE CONFIG
-# ENV_FILE_PATH = '.env'
-# dotenv.load_dotenv(ENV_FILE_PATH)
-
 # VK USER CONFIG
 VK_USER_TOKEN = os.environ["VK_USER_TOKEN"]
 VK_USER_LOGIN = os.environ["VK_USER_LOGIN"]
@@ -26,9 +22,6 @@ VK_MAIN_GROUP_ID = os.environ["VK_MAIN_GROUP_ID"]
 
 # VK AUDIO CLIENT CONFIG
 VK_AUDIO_CLIENT_SECRET = os.environ["VK_AUDIO_CLIENT_SECRET"]
-
-# MONGO_DB_CONFIG
-# MONGODB_URI = os.environ['MONGODB_URI']
 
 # BOT DIRECTORIES CONFIG
 BOT_DIR = os.environ["PYTHONPATH"]

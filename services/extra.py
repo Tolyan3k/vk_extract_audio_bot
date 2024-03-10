@@ -65,6 +65,7 @@ class File(BaseModel, **class_config):
     @field_validator("filename")
     @classmethod
     def check_filename(cls, filename: str, _: ValidationInfo) -> str:
+        # ruff: noqa: ANN102
         """TODO.
 
         Args:

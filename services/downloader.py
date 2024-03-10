@@ -99,11 +99,12 @@ class Downloader:
         """
         video_info = None
         with YoutubeDL() as yt_dlp:
+            # ruff: noqa: FBT003
             video_info = yt_dlp.extract_info(url, False)
         return Downloader._to_video_info(video_info)
 
     @staticmethod
-    def _to_video_info(yt_dlp_video_info: dict):
+    def _to_video_info(yt_dlp_video_info: dict) -> VideoInfo:
         vi = yt_dlp_video_info
         return VideoInfo(
             url=vi["original_url"],

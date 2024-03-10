@@ -2,28 +2,38 @@
 """TODO."""
 
 import functools
-import os
-import random
+import secrets
+from pathlib import Path
 
 import pyotp
 import vkaudiotoken
 import ZODB
 import ZODB.FileStorage
-from vk_api import VkApi
+from vk_api import Captcha, VkApi
 from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
 from vkaudiotoken import TokenException
 
 from bot_types.vk_android_audio import VkAndroidApi
 from bot_types.zodb_variable import ZodbVariable
+from config import (
+    BOT_WORK_DIRS,
+    DEBUG,
+    VK_ARCHIVE_GROUP_ID,
+    VK_ARCHIVE_GROUP_TOKEN,
+    VK_AUDIO_CLIENT_SECRET,
+    VK_MAIN_GROUP_ID,
+    VK_MAIN_GROUP_TOKEN,
+    VK_USER_2FA,
+    VK_USER_ID,
+    VK_USER_LOGIN,
+    VK_USER_PASSWORD,
+    VK_USER_TOKEN,
+    ZODB_DB_DIR,
+    ZODB_DB_PATH,
+)
 
-# from vk_audio import *
-# import pymongo
-from config import *
 
-# from bot_types.MongoVariable import MongoVariable
-
-
-def auth_handler():
+def auth_handler() -> tuple[str, bool]:
     """TODO.
 
     Returns
@@ -38,11 +48,12 @@ def auth_handler():
 
 
 def captcha_handler(
-    captcha,
+    captcha: Captcha,
     vk_bot_session: VkApi,
     vk_bot_group_id: int,
     vk_user_id: int,
 ):
+    # ruff: noqa: ANN201
     """TODO.
 
     Args:
@@ -60,8 +71,7 @@ def captcha_handler(
     vk_bot_session.get_api().messages.send(
         message="Требуется капча:\n" + f"{captcha.get_url()}",
         user_id=vk_user_id,
-        random_id=random.randint(0,
-                                 1 << 31),
+        random_id=secrets.randbelow(1 << 31),
     )
 
     key = ""
@@ -74,7 +84,7 @@ def captcha_handler(
 
 
 for bot_work_dir in [*BOT_WORK_DIRS.values(), ZODB_DB_DIR]:
-    os.makedirs(bot_work_dir, exist_ok=True)
+    Path.mkdir(bot_work_dir, exist_ok=True)
 
 vk_user_session = VkApi(token=VK_USER_TOKEN)
 vk_main_group_api_session = VkApi(token=VK_MAIN_GROUP_TOKEN)
@@ -157,7 +167,3 @@ else:
         error_message_ids.set_value([])
     if not converted_videos_content_id_to_audio_content_id.exist():
         converted_videos_content_id_to_audio_content_id.set_value({})
-
-    # db = converted_videos_content_id_to_audio_content_id.get_value()
-    # # db.pop('138136673_456239965')
-    # converted_videos_content_id_to_audio_content_id.set_value(dict())

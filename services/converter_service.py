@@ -94,31 +94,28 @@ class ConverterService:
                 bit_rate = str(min(int(bit_rate), vk_max_audufile_bitrate))
 
         if audio_convert_settings:
-            try:
-                with moviepy.editor.VideoFileClip(BOT_WORK_DIRS["videos"] +
-                                                  "/" + video_file_name,
-                                                  ) as video_clip:
-                    audio_clip = video_clip.audio
-                    audio_clip_fps = audio_clip.fps
-                    audio_clip_duration = audio_clip.duration
-                    audio_clip_nchannels = audio_clip.nchannels
+            with moviepy.editor.VideoFileClip(BOT_WORK_DIRS["videos"] + "/" +
+                                              video_file_name,
+                                              ) as video_clip:
+                audio_clip = video_clip.audio
+                audio_clip_fps = audio_clip.fps
+                audio_clip_duration = audio_clip.duration
+                audio_clip_nchannels = audio_clip.nchannels
 
-                    if audio_clip.duration < audio_convert_settings.min_duration:
-                        silence = AudioClip(
-                            make_frame=lambda t: [0] * audio_clip_nchannels,
-                            duration=audio_convert_settings.min_duration -
-                            audio_clip_duration,
-                            fps=audio_clip_fps,
-                        )
-                        audio_clip = CompositeAudioClip([audio_clip, silence])
-
-                    audio_clip.write_audiofile(
-                        BOT_WORK_DIRS["audios"] + "/" + video_file_name[:-3] +
-                        "mp3",
-                        audio_clip_fps,
-                        bitrate=bit_rate,
+                if audio_clip.duration < audio_convert_settings.min_duration:
+                    silence = AudioClip(
+                        make_frame=lambda _: [0] * audio_clip_nchannels,
+                        duration=audio_convert_settings.min_duration -
+                        audio_clip_duration,
+                        fps=audio_clip_fps,
                     )
-            except Exception:
-                raise
+                    audio_clip = CompositeAudioClip([audio_clip, silence])
+
+                audio_clip.write_audiofile(
+                    BOT_WORK_DIRS["audios"] + "/" + video_file_name[:-3] +
+                    "mp3",
+                    audio_clip_fps,
+                    bitrate=bit_rate,
+                )
 
         return video_file_name[:-3] + "mp3"

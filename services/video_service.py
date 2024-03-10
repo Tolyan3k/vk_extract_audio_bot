@@ -137,10 +137,7 @@ class VideoService:
         else:
             return None
 
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([link])
-        except Exception:
-            raise
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([link])
 
         return f"{download_settings.file_name}.mp4"

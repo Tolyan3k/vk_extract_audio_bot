@@ -1,7 +1,7 @@
 """TODO."""
 
-import os
 import shutil
+from pathlib import Path
 
 import pytest
 from pydantic import DirectoryPath, NewPath
@@ -23,7 +23,7 @@ def create_and_delete_file(filepath: str) -> None:
     """
     np = NewPath(filepath)
     np.touch()    # pylint: disable=no-member
-    os.remove(np)
+    Path.unlink(np)
 
 
 class TestFile:
@@ -106,4 +106,4 @@ class TestFile:
         np = NewPath(f"{f}")
         np.touch()    # pylint: disable=no-member
         f.as_filepath()
-        os.remove(f"{np}")
+        Path.unlink(f"{np}")

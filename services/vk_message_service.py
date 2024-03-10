@@ -21,7 +21,7 @@ class VkMesasgeService:
     """
 
     @staticmethod
-    def get_message_by_id(vk_session: VkApi, msg_id) -> dict | None:
+    def get_message_by_id(vk_session: VkApi, msg_id: str) -> dict | None:
         """TODO.
 
         Args:
@@ -65,7 +65,6 @@ class VkMesasgeService:
                         _iter_find_video(list_elem)
 
         _iter_find_video(vk_msg)
-
         return videos
 
     @staticmethod

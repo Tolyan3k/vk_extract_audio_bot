@@ -1,10 +1,10 @@
 """TODO."""
 
 import contextlib
-import os
 import queue
-import random
+import secrets
 import threading
+from pathlib import Path
 from time import sleep
 
 from loguru import logger
@@ -32,20 +32,11 @@ from services.video_service import VideoService
 from services.vk_audio_service import VkAudioService
 from services.vk_message_service import VkMesasgeService
 
+GROUP_CHAT_START_ID = 2000000000
+MSG_PROCCESSING_START_DELAY = 5
+
 unprocessed_msgs_queue = queue.Queue()
 processing_queue = queue.Queue()
-
-
-def remove_file_if_exist(file_path: str) -> None:
-    """TODO.
-
-    Args:
-    ----
-        file_path (str): _description_
-
-    """
-    if os.path.exists(file_path):
-        os.remove(file_path)
 
 
 def is_converted_vk_video(vk_video_content_id: str) -> bool:
@@ -79,7 +70,6 @@ def process_converted_vk_video(video_content_id: str) -> str | None:
     """
     db = __init__.converted_videos_content_id_to_audio_content_id.get_value()
     return dict(db)[video_content_id]
-
 
 
 def process_non_converted_vk_video(
@@ -150,8 +140,14 @@ def process_non_converted_vk_video(
         logger.info(f"Ошибка: {error}")
         return None
     finally:
-        remove_file_if_exist(BOT_WORK_DIRS["videos"] + f"/{video_file_name}")
-        remove_file_if_exist(BOT_WORK_DIRS["audios"] + f"/{audio_file_name}")
+        Path.unlink(
+            BOT_WORK_DIRS["videos"] + f"/{video_file_name}",
+            missing_ok=True,
+        )
+        Path.unlink(
+            BOT_WORK_DIRS["audios"] + f"/{audio_file_name}",
+            missing_ok=True,
+        )
 
     archive_group_content_id = None
     try:
@@ -169,7 +165,7 @@ def process_non_converted_vk_video(
     return archive_group_content_id
 
 
-def get_author_name(video_info):
+def get_author_name(video_info: object) -> str:
     """TODO.
 
     Args:
@@ -202,7 +198,7 @@ def get_author_name(video_info):
     return author
 
 
-def get_player_link_from_vk_video_obj(video):
+def get_player_link_from_vk_video_obj(video: dict) -> str:
     """TODO.
 
     Args:
@@ -221,7 +217,6 @@ def get_player_link_from_vk_video_obj(video):
                 break
     elif video.get("platform") == VkVideoPlatform.YOUTUBE.value:
         player_link = video["player"]
-
     return player_link
 
 
@@ -279,16 +274,18 @@ def process_vk_video(vk_video_obj: dict,
     return archive_group_content_id, True
 
 
-def send_replied_msg_else_not(vk_session, **send_msg_args):
+def send_replied_msg_else_not(vk_session: VkApi, **send_msg_args) -> dict:
+    # ruff: noqa: ANN003
     """TODO.
 
     Args:
     ----
-        vk_session (_type_): _description_
+        vk_session (VkApi): _description_
+        send_msg_args: _description_
 
     Returns:
     -------
-        _type_: _description_
+        dict: _description_
 
     """
     try:
@@ -328,7 +325,8 @@ def send_audios_to_user(
         len(vk_audio_content_ids) + (VK_MAX_ATTACHMENTS - 1)
     ) // VK_MAX_ATTACHMENTS
     for part in range(parts):
-        message = f"[{part + 1}/{parts}]" if parts >= 2 else error_msg_text
+        real_magic_num = 2    # переименую чуть позже, надо понять, для чего это
+        message = f"[{part + 1}/{parts}]" if parts >= real_magic_num else error_msg_text
         audio_start_index = VK_MAX_ATTACHMENTS * part
         audio_end_index = min(
             VK_MAX_ATTACHMENTS * (part + 1),
@@ -343,8 +341,7 @@ def send_audios_to_user(
                 vk_audio_content_ids[audio_start_index:audio_end_index],
             ),
             user_id=msg["peer_id"],
-            random_id=random.randint(0,
-                                     1 << 31),
+            random_id=secrets.randbelow(1 << 31),
         )
 
     if error_msg_text and (len(vk_audio_content_ids) > VK_MAX_ATTACHMENTS
@@ -354,12 +351,11 @@ def send_audios_to_user(
             message=error_msg_text,
             reply_to=msg["id"],
             user_id=msg["peer_id"],
-            random_id=random.randint(0,
-                                     1 << 31),
+            random_id=secrets.randbelow(1 << 31),
         )
 
 
-def need_process_msg(msg) -> bool:
+def need_process_msg(msg: dict | None) -> bool:
     """TODO.
 
     Args:
@@ -372,13 +368,12 @@ def need_process_msg(msg) -> bool:
 
     """
     if (msg is None or msg["from_id"] == -int(VK_MAIN_GROUP_ID)
-            or msg["peer_id"] >= 2000000000):
+            or msg["peer_id"] >= GROUP_CHAT_START_ID):
         return False
-
     return True
 
 
-def process_msg(msg) -> None:
+def process_msg(msg: dict | None) -> None:
     """TODO.
 
     Args:
@@ -390,7 +385,6 @@ def process_msg(msg) -> None:
         return
 
     video_attachments = VkMesasgeService.get_video_attachments_from_message(msg)
-    # video_links = VkMesasgeService.get_video_links_from_text(msg)
 
     videos = video_attachments
 
@@ -400,8 +394,7 @@ def process_msg(msg) -> None:
             message=user_messages.videos_not_found(),
             reply_to=msg["id"],
             user_id=msg["peer_id"],
-            random_id=random.randint(0,
-                                     1 << 31),
+            random_id=secrets.randbelow(1 << 31),
         )
         return
 
@@ -410,8 +403,7 @@ def process_msg(msg) -> None:
         message=user_messages.start_processing_message(),
         reply_to=msg["id"],
         user_id=msg["peer_id"],
-        random_id=random.randint(0,
-                                 1 << 31),
+        random_id=secrets.randbelow(1 << 31),
     )
 
     vk_audio_content_ids = []
@@ -441,10 +433,10 @@ def process_msg(msg) -> None:
 
 
 def edit_vk_audio_if_video_public_or_non_vk(
-    videos,
-    video_id,
-    archive_group_content_id,
-    new_video,
+    videos: list[dict],
+    video_id: str,
+    archive_group_content_id: int,
+    is_new_video: bool,
 ) -> None:
     """TODO.
 
@@ -453,13 +445,13 @@ def edit_vk_audio_if_video_public_or_non_vk(
         videos (_type_): _description_
         video_id (_type_): _description_
         archive_group_content_id (_type_): _description_
-        new_video (_type_): _description_
+        is_new_video (_type_): _description_
 
     """
     is_video_public = videos[video_id].get("is_private") is None
     is_platform_vk = videos[video_id].get("platform") is None
 
-    if new_video and (is_video_public or not is_platform_vk):
+    if is_new_video and (is_video_public or not is_platform_vk):
         VkAudioService.edit_audio(
             archive_group_content_id,
             new_text=VK_MAIN_GROUP_URL,
@@ -467,7 +459,7 @@ def edit_vk_audio_if_video_public_or_non_vk(
         )
 
 
-def process_msg_new(msg_id) -> None:
+def process_msg_new(msg_id: str) -> None:
     """TODO.
 
     Args:
@@ -493,7 +485,7 @@ def process_msg_new(msg_id) -> None:
     logger.info("Обработал письмо с id = " + str(msg_id))
 
 
-def get_last_unanswered_msg_id(vk_session: VkApi):
+def get_last_unanswered_msg_id(vk_session: VkApi) -> int:
     """TODO.
 
     Args:
@@ -510,42 +502,29 @@ def get_last_unanswered_msg_id(vk_session: VkApi):
     )["items"][0]["last_message"]["id"]
 
 
-
 def process_unanswered_messages() -> None:
     """TODO."""
     logger.info(
-        "Начинаю проверять неотвеченные сообщения." +
-        f" Текущий id последнего отвеченного сообщения = {__init__.last_answered_msg_id}",
+        "Начинаю проверять неотвеченные сообщения."
+        " Текущий id последнего отвеченного сообщения"
+        f" = {__init__.last_answered_msg_id}",
     )
 
     last_unanswered_msg_id = get_last_unanswered_msg_id(
         __init__.vk_main_group_api_session,
     )
-    # while __init__.last_answered_msg_id != last_unanswered_msg_id:
     for msg_id in range(int(str(__init__.last_answered_msg_id)) + 1,
                         last_unanswered_msg_id + 1):
-        # process_msg_new(msg_id)
         send_msg_if_queued(msg_id)
         unprocessed_msgs_queue.put(msg_id)
 
-        # last_unanswered_msg_id = get_last_unanswered_msg_id(__init__.vk_main_group_api_session)
-
     logger.info(
-        "Закончил проверять неотвеченные сообщения." +
+        "Закончил проверять неотвеченные сообщения."
         f" Id последнего отвеченного сообщения = {__init__.last_answered_msg_id}",
     )
 
 
-# def add_unanswered_messages_to_queue():
-#     last_unanswered_msg_id
-#       = get_last_unanswered_msg_id(__init__.vk_main_group_api_session)
-
-# for msg_id in range(int(__init__.last_answered_msg_id.__str__()) + 1,
-#                     last_unanswered_msg_id + 1):
-#     unprocessed_msgs_queue.put(msg_id)
-
-
-def get_right_messages_word(num):
+def get_right_messages_word(num: int) -> str:
     """TODO.
 
     Args:
@@ -569,7 +548,7 @@ def get_right_messages_word(num):
     return word
 
 
-def send_msg_if_queued(msg_id, msg_peer_id=None) -> None:
+def send_msg_if_queued(msg_id: str, msg_peer_id: int | None = None) -> None:
     """TODO.
 
     Args:
@@ -605,8 +584,7 @@ def send_msg_if_queued(msg_id, msg_peer_id=None) -> None:
             ),
             reply_to=msg_id,
             user_id=msg_peer_id,
-            random_id=random.randint(0,
-                                     1 << 31),
+            random_id=secrets.randbelow(1 << 31),
         )
 
 
@@ -618,11 +596,8 @@ def process_longpoll() -> None:
         if event.type == VkBotEventType.MESSAGE_NEW:
             msg_id = event.message.id
             msg_peer_id = event.message.peer_id
-
-            sleep(
-                1,
-            )    # Чтобы вложение успело прогрузиться, если пользователь пришлёт только ссылку
-            # process_msg_new(event.message.id)
+            # Чтобы вложение успело прогрузиться, если пользователь пришлёт только ссылку
+            sleep(MSG_PROCCESSING_START_DELAY)
             send_msg_if_queued(msg_id, msg_peer_id)
             unprocessed_msgs_queue.put(msg_id)
 
@@ -636,20 +611,23 @@ def convert_processor() -> None:
         processing_queue.get()
 
 
+def run_longpoll() -> None:
+    """TODO."""
+    try:
+        logger.info("Запуск бота...")
+        process_longpoll()
+    except Exception:
+        logger.info(
+            "\n" * 2 + "#" * 30 + "\n" * 2 + "Произошла непредвиденная ошибка.",
+        )
+        logger.info("\n" * 2 + "#" * 30 + "\n")
+        logger.info("Перезапуск бота..." + "\n")
+
+
 def main_bot() -> None:
     """TODO."""
     while True:
-        try:
-            logger.info("Запуск бота...")
-            # process_unanswered_messages()
-            process_longpoll()
-        except Exception:
-            logger.info(
-                "\n" * 2 + "#" * 30 + "\n" * 2 +
-                "Произошла непредвиденная ошибка.",
-            )
-            logger.info("\n" * 2 + "#" * 30 + "\n")
-            logger.info("Перезапуск бота..." + "\n")
+        run_longpoll()
 
 
 functions_to_threads = [convert_processor, main_bot]
@@ -659,6 +637,3 @@ for function in functions_to_threads:
     thread = threading.Thread(target=function)
     thread.start()
     threads.append(thread)
-
-# convert_processor_thread = threading.Thread(target=convert_processor)
-# convert_processor_thread.start()

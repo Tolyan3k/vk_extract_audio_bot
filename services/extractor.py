@@ -1,7 +1,7 @@
 """TODO."""
 
-import os
 import shutil
+from pathlib import Path
 
 import ffmpeg
 from moviepy.editor import VideoFileClip
@@ -36,7 +36,6 @@ class ExtractorOptions(BaseModel):
     bitrate: int
     hz: int
     max_size: int
-    # ext: AudioFileExtension = AudioFileExtension.MP3
 
 
 class AudioExtractor:
@@ -72,7 +71,7 @@ class AudioExtractor:
             raise ValueError(msg)
         any_f = Downloader.download_any(url, temp, DownloadedFile.Type.AUDIO)
         aud_f = AudioExtractor.extract_from_file(any_f, to)
-        os.remove(temp.get_str())
+        Path.unlink(temp.get_str())
         return aud_f
 
     @staticmethod
