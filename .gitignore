@@ -5,6 +5,7 @@
 !.yapfignore
 !.style.yapf
 !.ruff.toml
+!.pre-commit-config.yaml
 
 
 # ---> Python
