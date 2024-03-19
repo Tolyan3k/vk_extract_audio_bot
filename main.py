@@ -328,10 +328,11 @@ def send_audios_to_user(
     ) // VK_MAX_ATTACHMENTS
     for part in range(parts):
         real_magic_num = 2    # переименую чуть позже, надо понять, для чего это
-        message = f"[{part + 1}/{parts}]" if parts >= real_magic_num else error_msg_text
+        part_num = part + 1
+        message = f"[{part_num}/{parts}]" if parts >= real_magic_num else error_msg_text
         audio_start_index = VK_MAX_ATTACHMENTS * part
         audio_end_index = min(
-            VK_MAX_ATTACHMENTS * (part + 1),
+            VK_MAX_ATTACHMENTS * (part_num),
             len(vk_audio_content_ids),
         )
 
