@@ -2,8 +2,6 @@
 
 import os
 
-DEBUG = False
-
 # VK USER CONFIG
 VK_USER_TOKEN = os.environ["VK_USER_TOKEN"]
 VK_USER_LOGIN = os.environ["VK_USER_LOGIN"]

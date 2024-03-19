@@ -17,7 +17,6 @@ from bot_types.vk_android_audio import VkAndroidApi
 from bot_types.zodb_variable import ZodbVariable
 from config import (
     BOT_WORK_DIRS,
-    DEBUG,
     VK_ARCHIVE_GROUP_ID,
     VK_ARCHIVE_GROUP_TOKEN,
     VK_AUDIO_CLIENT_SECRET,
@@ -43,7 +42,6 @@ def auth_handler() -> tuple[str, bool]:
     """
     key = pyotp.TOTP(VK_USER_2FA).now()
     remember_device = True
-
     return key, remember_device
 
 
@@ -117,53 +115,27 @@ vk_audio_api.method("auth.refreshToken", lang="ru")
 
 vk_bot_longpoll = VkBotLongPoll(vk_main_group_api_session, VK_MAIN_GROUP_ID)
 
-if DEBUG:
-    DEBUG_VALUE = 1164    # 1047 # 998
+zodb_storage = ZODB.FileStorage.FileStorage(ZODB_DB_PATH)
+zodb_db = ZODB.DB(zodb_storage)
 
-    zodb_storage = ZODB.FileStorage.FileStorage(".db/.debug_db")
-    zodb_db = ZODB.DB(zodb_storage)
+last_answered_msg_id = ZodbVariable(
+    zodb_db=zodb_db,
+    var_name="last_answered_message_id",
+)
 
-    last_answered_msg_id = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="last_answered_message_id",
-    )
+error_message_ids = ZodbVariable(
+    zodb_db=zodb_db,
+    var_name="error_message_ids",
+)
 
-    error_message_ids = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="error_message_ids",
-    )
+converted_videos_content_id_to_audio_content_id = ZodbVariable(
+    zodb_db=zodb_db,
+    var_name="converted_videos_content_id_to_audio_content_id",
+)
 
-    converted_videos_content_id_to_audio_content_id = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="converted_videos_content_id_to_audio_content_id",
-    )
-
-    last_answered_msg_id.set_value(DEBUG_VALUE)
+if not last_answered_msg_id.exist():
+    last_answered_msg_id.set_value(0)
+if not error_message_ids.exist():
     error_message_ids.set_value([])
-    if not converted_videos_content_id_to_audio_content_id.exist():
-        converted_videos_content_id_to_audio_content_id.set_value({})
-else:
-    zodb_storage = ZODB.FileStorage.FileStorage(ZODB_DB_PATH)
-    zodb_db = ZODB.DB(zodb_storage)
-
-    last_answered_msg_id = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="last_answered_message_id",
-    )
-
-    error_message_ids = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="error_message_ids",
-    )
-
-    converted_videos_content_id_to_audio_content_id = ZodbVariable(
-        zodb_db=zodb_db,
-        var_name="converted_videos_content_id_to_audio_content_id",
-    )
-
-    if not last_answered_msg_id.exist():
-        last_answered_msg_id.set_value(0)
-    if not error_message_ids.exist():
-        error_message_ids.set_value([])
-    if not converted_videos_content_id_to_audio_content_id.exist():
-        converted_videos_content_id_to_audio_content_id.set_value({})
+if not converted_videos_content_id_to_audio_content_id.exist():
+    converted_videos_content_id_to_audio_content_id.set_value({})
