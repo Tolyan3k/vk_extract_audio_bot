@@ -160,8 +160,14 @@ class VkAndroidApi:
             self.token = answer["access_token"]
 
             # Методы, "Открывающие" доступ к аудио. Без них, аудио получить не получится
-            self.method("execute.getUserInfo", func_v=9)    # pylint: disable=expression-not-assigned
-            self.method("auth.refreshToken", lang="ru")    # pylint: disable=expression-not-assigned
+            self.method(
+                "execute.getUserInfo",
+                func_v=9,
+            )    # pylint: disable=expression-not-assigned
+            self.method(
+                "auth.refreshToken",
+                lang="ru",
+            )    # pylint: disable=expression-not-assigned
 
     def method(self, method: str, **params) -> dict:
         """TODO.

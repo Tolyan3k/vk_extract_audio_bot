@@ -220,9 +220,11 @@ def get_player_link_from_vk_video_obj(video: dict) -> str:
     return player_link
 
 
-def process_vk_video(vk_video_obj: dict,
-                     video_file_name: str) -> tuple[str | None,
-                                                    bool]:
+def process_vk_video(
+    vk_video_obj: dict,
+    video_file_name: str,
+) -> tuple[str | None,
+           bool]:
     """TODO.
 
     Args:
@@ -315,8 +317,8 @@ def send_audios_to_user(
     if len(videos) == 1 and len(vk_audio_content_ids) == 0:
         error_msg_text = user_messages.video_not_support()
     elif len(videos) > 1:
-        if len(vk_audio_content_ids,
-               ) and len(videos) - len(vk_audio_content_ids):
+        if len(vk_audio_content_ids) and len(videos,
+                                             ) - len(vk_audio_content_ids):
             error_msg_text = user_messages.failed_to_convert_part_many()
         elif len(vk_audio_content_ids) == 0:
             error_msg_text = user_messages.failed_to_convert_all_many()
@@ -513,8 +515,10 @@ def process_unanswered_messages() -> None:
     last_unanswered_msg_id = get_last_unanswered_msg_id(
         __init__.vk_main_group_api_session,
     )
-    for msg_id in range(int(str(__init__.last_answered_msg_id)) + 1,
-                        last_unanswered_msg_id + 1):
+    for msg_id in range(
+            int(str(__init__.last_answered_msg_id)) + 1,
+            last_unanswered_msg_id + 1,
+    ):
         send_msg_if_queued(msg_id)
         unprocessed_msgs_queue.put(msg_id)
 
