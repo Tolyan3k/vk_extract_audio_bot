@@ -9,6 +9,10 @@ import pyotp
 import vkaudiotoken
 import ZODB
 import ZODB.FileStorage
+from vk_api import Captcha, VkApi
+from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
+from vkaudiotoken import TokenException
+
 from .bot_types.vk_android_audio import VkAndroidApi
 from .bot_types.zodb_variable import ZodbVariable
 from .config import (
@@ -26,9 +30,6 @@ from .config import (
     ZODB_DB_DIR,
     ZODB_DB_PATH,
 )
-from vk_api import Captcha, VkApi
-from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
-from vkaudiotoken import TokenException
 
 
 def auth_handler() -> tuple[str, bool]:
