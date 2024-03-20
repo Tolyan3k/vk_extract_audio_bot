@@ -1,20 +1,6 @@
 repos:
 - repo: local
   hooks:
-  # - id: black
-  #   name: Black
-  #   entry: poetry run black --quiet
-  #   language: system
-  #   types: [python]
-  #   require_serial: true
-  
-  # - id: yapf
-  #   name: YAPF
-  #   entry: poetry run yapf --recursive --in-place .
-  #   language: system
-  #   types: [python]
-  #   require_serial: true
-
   - id: pylint
     name: Pylint
     entry: poetry run pylint .
