@@ -1,12 +1,11 @@
 """TODO."""
 
-from vk_api.upload import VkUpload
-
 from __init__ import (
     vk_audio_api,
     vk_user_session,
 )
 from bot_types.audio_info import AudioInfo
+from vk_api.upload import VkUpload
 
 
 class VkAudioService:

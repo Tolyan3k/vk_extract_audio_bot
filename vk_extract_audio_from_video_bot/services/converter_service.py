@@ -4,10 +4,9 @@ import math
 
 import ffmpeg
 import moviepy.editor
-from moviepy.audio.AudioClip import AudioClip, CompositeAudioClip
-
 from bot_types.audio_convert_settings import AudioConvertSettings
 from config import BOT_WORK_DIRS, VK_MAX_AUDIOFILE_SIZE_MB
+from moviepy.audio.AudioClip import AudioClip, CompositeAudioClip
 
 
 class ConverterService:

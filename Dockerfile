@@ -19,7 +19,7 @@ RUN mkdir .db \
 COPY --from=mwader/static-ffmpeg:6.1 /ffmpeg /usr/local/bin/ 
 COPY --from=mwader/static-ffmpeg:6.1 /ffprobe /usr/local/bin/
 COPY --from=build-venv /opt/venv /opt/venv
-COPY . .
+COPY /vk_extract_audio_from_video_bot .
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1

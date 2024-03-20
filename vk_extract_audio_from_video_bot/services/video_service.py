@@ -1,8 +1,7 @@
 """TODO."""
 
-import yt_dlp
-
 import config
+import yt_dlp
 from bot_types.video_download_settings import VideoDownloadSettings
 from bot_types.video_info import VideoInfo
 from bot_types.video_platform import VideoPlatform

@@ -45,7 +45,7 @@ fixable = [ "ALL" ]
 
 [lint.per-file-ignores]
 "tests/*" = [ "S101" ] # disable assert checking
-"bot_types/zodb_variable.py" = [ "D105", "ANN001" ] # disable magic documenting, type checking
+"vk_extract_audio_from_video_bot/bot_types/zodb_variable.py" = [ "D105", "ANN001" ] # disable magic documenting, type checking
 
 
 [format]

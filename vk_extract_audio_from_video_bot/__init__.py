@@ -9,13 +9,9 @@ import pyotp
 import vkaudiotoken
 import ZODB
 import ZODB.FileStorage
-from vk_api import Captcha, VkApi
-from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
-from vkaudiotoken import TokenException
-
-from bot_types.vk_android_audio import VkAndroidApi
-from bot_types.zodb_variable import ZodbVariable
-from config import (
+from .bot_types.vk_android_audio import VkAndroidApi
+from .bot_types.zodb_variable import ZodbVariable
+from .config import (
     BOT_WORK_DIRS,
     VK_ARCHIVE_GROUP_ID,
     VK_ARCHIVE_GROUP_TOKEN,
@@ -30,6 +26,9 @@ from config import (
     ZODB_DB_DIR,
     ZODB_DB_PATH,
 )
+from vk_api import Captcha, VkApi
+from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
+from vkaudiotoken import TokenException
 
 
 def auth_handler() -> tuple[str, bool]:
@@ -82,7 +81,7 @@ def captcha_handler(
 
 
 for bot_work_dir in [*BOT_WORK_DIRS.values(), ZODB_DB_DIR]:
-    Path.mkdir(bot_work_dir, exist_ok=True)
+    Path.mkdir(Path(bot_work_dir), parents=True, exist_ok=True)
 
 vk_user_session = VkApi(token=VK_USER_TOKEN)
 vk_main_group_api_session = VkApi(token=VK_MAIN_GROUP_TOKEN)

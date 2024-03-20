@@ -7,10 +7,6 @@ import threading
 from pathlib import Path
 from time import sleep
 
-from loguru import logger
-from vk_api import VkApi
-from vk_api.bot_longpoll import VkBotEventType
-
 import __init__
 import user_messages
 from bot_types.audio_convert_settings import AudioConvertSettings
@@ -27,10 +23,13 @@ from config import (
     VK_MAIN_GROUP_URL,
     VK_MAX_ATTACHMENTS,
 )
+from loguru import logger
 from services.converter_service import ConverterService
 from services.video_service import VideoService
 from services.vk_audio_service import VkAudioService
 from services.vk_message_service import VkMesasgeService
+from vk_api import VkApi
+from vk_api.bot_longpoll import VkBotEventType
 
 GROUP_CHAT_START_ID = 2000000000
 MSG_PROCCESSING_START_DELAY = 5
@@ -423,13 +422,12 @@ def process_msg(msg: dict | None) -> None:
             logger.info(error)
             archive_group_content_id = None
 
-        if archive_group_content_id:
+        if archive_group_content_id and new_video:
             vk_audio_content_ids.append(str(archive_group_content_id))
             edit_vk_audio_if_video_public_or_non_vk(
                 videos,
                 video_id,
                 archive_group_content_id,
-                new_video,
             )
 
     send_audios_to_user(msg, videos, vk_audio_content_ids)
@@ -439,7 +437,6 @@ def edit_vk_audio_if_video_public_or_non_vk(
     videos: list[dict],
     video_id: str,
     archive_group_content_id: int,
-    is_new_video: bool,
 ) -> None:
     """TODO.
 
@@ -454,7 +451,7 @@ def edit_vk_audio_if_video_public_or_non_vk(
     is_video_public = videos[video_id].get("is_private") is None
     is_platform_vk = videos[video_id].get("platform") is None
 
-    if is_new_video and (is_video_public or not is_platform_vk):
+    if is_video_public or not is_platform_vk:
         VkAudioService.edit_audio(
             archive_group_content_id,
             new_text=VK_MAIN_GROUP_URL,

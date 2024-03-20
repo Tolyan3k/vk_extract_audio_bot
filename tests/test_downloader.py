@@ -6,8 +6,8 @@ from pathlib import Path
 import pathvalidate
 from pydantic import DirectoryPath, NewPath
 
-from services.downloader import DownloadedFile, Downloader
-from services.extra import File
+from vk_extract_audio_from_video_bot.services.downloader import DownloadedFile, Downloader
+from vk_extract_audio_from_video_bot.services.extra import File
 
 TEST_DIR = "./tests/.temp"
 test_dir = DirectoryPath(TEST_DIR)
@@ -65,7 +65,7 @@ class TestYT:
                     )
                     dlf = Downloader.download_video(url, to)
                     assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(dlf.filepath.get_str())
+                    Path.unlink(Path(dlf.filepath.get_str()))
 
             def test_is_real_video(self) -> None:
                 """TODO."""
@@ -82,7 +82,7 @@ class TestYT:
                     )
                     dlf = Downloader.download_audio(url, to)
                     assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(dlf.filepath.get_str())
+                    Path.unlink(Path(dlf.filepath.get_str()))
 
             def test_is_real_audio(self) -> None:
                 """TODO."""
@@ -103,7 +103,7 @@ class TestYT:
                         DownloadedFile.Type.AUDIO,
                     )
                     assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(dlf.filepath.get_str())
+                    Path.unlink(Path(dlf.filepath.get_str()))
 
             def test_first_video(self) -> None:
                 """Must be only video."""
@@ -118,4 +118,4 @@ class TestYT:
                         DownloadedFile.Type.VIDEO,
                     )
                     assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(dlf.filepath.get_str())
+                    Path.unlink(Path(dlf.filepath.get_str()))

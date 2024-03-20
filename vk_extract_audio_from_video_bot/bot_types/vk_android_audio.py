@@ -7,7 +7,10 @@ import string
 import threading
 import time
 import urllib
-from typing import ClassVar
+from typing import (
+    ClassVar,
+    ParamSpecKwargs,
+)
 
 import requests
 
@@ -169,7 +172,7 @@ class VkAndroidApi:
                 lang="ru",
             )    # pylint: disable=expression-not-assigned
 
-    def method(self, method: str, **params) -> dict:
+    def method(self, method: str, **params: ParamSpecKwargs) -> dict:
         """TODO.
 
         Args:
@@ -199,7 +202,7 @@ class VkAndroidApi:
         url: str,
         params: dict | None = None,
         method: str | None = None,
-        headers=None,
+        headers: dict | None =None,
     ) -> dict:
         # ruff: noqa: S324
         req_hash = hashlib.md5((url + self.secret).encode()).hexdigest()

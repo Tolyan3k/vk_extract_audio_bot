@@ -71,7 +71,7 @@ class AudioExtractor:
             raise ValueError(msg)
         any_f = Downloader.download_any(url, temp, DownloadedFile.Type.AUDIO)
         aud_f = AudioExtractor.extract_from_file(any_f, to)
-        Path.unlink(temp.get_str())
+        Path.unlink(Path(temp.get_str()))
         return aud_f
 
     @staticmethod

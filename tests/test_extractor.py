@@ -6,8 +6,8 @@ from pathlib import Path
 import pathvalidate
 from pydantic import DirectoryPath
 
-from services.extra import File
-from services.extractor import AudioExtractor
+from vk_extract_audio_from_video_bot.services.extra import File
+from vk_extract_audio_from_video_bot.services.extractor import AudioExtractor
 
 TEST_DIR = DirectoryPath("./tests/.temp")
 shutil.rmtree(TEST_DIR, ignore_errors=True)
@@ -55,4 +55,4 @@ class TestExtractor:
                 )
                 af = AudioExtractor.extract_from_url(url, temp, to)
                 assert af.audiofile.as_filepath().exists()
-                Path.unlink(af.audiofile.get_str())
+                Path.unlink(Path(af.audiofile.get_str()))

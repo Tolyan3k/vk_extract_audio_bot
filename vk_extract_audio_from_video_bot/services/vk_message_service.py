@@ -1,7 +1,5 @@
 """TODO."""
 
-from vk_api import VkApi
-
 from bot_types.video_platform import (
     VIDEO_PATTERNS_COMPILED_FULL,
     VIDEO_PATTERNS_COMPILED_WITH_PLATFORMS,
@@ -9,6 +7,7 @@ from bot_types.video_platform import (
 from bot_types.vk_video_platform import (
     video_platform_to_vk_video_platform,
 )
+from vk_api import VkApi
 
 
 class VkMesasgeService:

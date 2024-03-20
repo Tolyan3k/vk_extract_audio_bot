@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import DirectoryPath, NewPath
 
-from services.extra import File
+from vk_extract_audio_from_video_bot.services.extra import File
 
 TEST_DIR = DirectoryPath("./tests/.temp")
 shutil.rmtree(TEST_DIR, ignore_errors=True)
@@ -106,4 +106,4 @@ class TestFile:
         np = NewPath(f"{f}")
         np.touch()    # pylint: disable=no-member
         f.as_filepath()
-        Path.unlink(f"{np}")
+        Path.unlink(Path(f"{np}"))
