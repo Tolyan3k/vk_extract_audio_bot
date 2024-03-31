@@ -45,6 +45,11 @@ ignore = [
 ]
 fixable = [ "ALL" ]
 
+[lint.isort]
+# Use a single line after each import block.
+lines-after-imports = 2
+
+
 [lint.per-file-ignores]
 "tests/*" = [ "S101" ] # disable assert checking
 "vk_extract_audio_from_video_bot/bot_types/zodb_variable.py" = [ "D105", "ANN001" ] # disable magic documenting, type checking
