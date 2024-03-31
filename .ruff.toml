@@ -38,6 +38,8 @@ ignore = [
     "ANN101", "ANN202", "ANN204",
     "RUF001", "RUF003", 
     "D105",
+    "D203", # one-blank-line-before-class
+    "D212", # multi-line-summary-first-line
     "N999",
     "B017", "PT011", "BLE001", "TRY002", # всё про Exception
 ]
