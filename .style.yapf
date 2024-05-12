@@ -119,7 +119,7 @@ dedent_closing_brackets=True
 
 # Disable the heuristic which places each list element on a separate line
 # if the list is comma-terminated.
-disable_ending_comma_heuristic=False
+disable_ending_comma_heuristic=True
 
 # Place each dictionary entry onto its own line.
 each_dict_entry_on_separate_line=True
@@ -284,7 +284,7 @@ space_between_ending_comma_and_closing_bracket=False
 space_inside_brackets=False
 
 # Split before arguments.
-split_all_comma_separated_values=True
+split_all_comma_separated_values=False
 
 # Split before arguments, but do not split all subexpressions recursively
 # (unless needed).

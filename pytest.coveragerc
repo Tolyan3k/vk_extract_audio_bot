@@ -1,0 +1,6 @@
+[report]
+exclude_lines = 
+    @overload
+    import
+    __all__
+    pytest-cov: no cover

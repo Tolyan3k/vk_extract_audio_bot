@@ -34,16 +34,35 @@ target-version = "py310"
 
 [lint]
 select = [ "ALL" ]
-ignore = [ 
-    "ANN101", "ANN202", "ANN204",
-    "RUF001", "RUF003", 
-    "D105",
-    "D203", # one-blank-line-before-class
-    "D212", # multi-line-summary-first-line
-    "N999",
-    "B017", "PT011", "BLE001", "TRY002", # всё про Exception
-]
 fixable = [ "ALL" ]
+ignore = [
+    # ruff:
+    "RUF002",               # ambiguous-unicode-character-docstring
+    # flake8-annotations:
+    "ANN101",               # missing-type-self
+    "ANN202",               # missing-return-type-private-function
+    "ANN204",               # missing-return-type-special-method
+    # Ruff-specific rules:
+    "RUF001",               # ambiguous-unicode-character-string
+    "RUF003",               # ambiguous-unicode-character-comment
+    # pydocstyle:
+    "D105",                 # undocumented-magic-method
+    "D203",                 # one-blank-line-before-class
+    "D212",                 # multi-line-summary-first-line
+    "D10",                  # undocumented-...
+    "D400",                 # ends-in-period
+    "D415",                 # ends-in-punctuation
+    # pep8-naming:
+    # "N999",                 # invalid-module-name
+    # flake8-bugbear:
+    "B017",                 # assert-raises-exception
+    # flake8-pytest-style:
+    "PT011",                # pytest-raises-too-broad
+    # flake8-blind-except:
+    "BLE001",               # blind-except
+    # tryceratops:
+    "TRY002",               # raise-vanilla-class
+]
 
 [lint.isort]
 # Use a single line after each import block.
@@ -51,8 +70,21 @@ lines-after-imports = 2
 
 
 [lint.per-file-ignores]
-"tests/*" = [ "S101" ] # disable assert checking
-"vk_extract_audio_from_video_bot/bot_types/zodb_variable.py" = [ "D105", "ANN001" ] # disable magic documenting, type checking
+"tests/*" = [
+    # flake8-bandit
+    "S101",                 # assert
+    #
+    "ANN201",               # missing-return-type-undocumented-public-function
+    "ANN001",               # missing-type-function-argument
+    #
+    "D205",                 # blank-line-after-summary
+]
+"vk_extract_audio_bot/utils/zodb_variable.py" = [
+    # flake8-annotations:
+    "ANN001",               # missing-type-function-argument
+    # pydocstyle:
+    "D105",                 # undocumented-magic-method
+]
 
 
 [format]

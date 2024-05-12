@@ -1,121 +1,204 @@
-"""TODO."""
+import ffmpeg
+import pytest
 
-import shutil
-from pathlib import Path
-
-import pathvalidate
-from pydantic import DirectoryPath, NewPath
-
-from vk_extract_audio_from_video_bot.services.downloader import DownloadedFile, Downloader
-from vk_extract_audio_from_video_bot.services.extra import File
-
-TEST_DIR = "./tests/.temp"
-test_dir = DirectoryPath(TEST_DIR)
-shutil.rmtree(test_dir, ignore_errors=True)
-test_dir.mkdir()    # pylint: disable=no-member
-
-PUBLIC_URLS = [
-    "https://www.youtube.com/watch?v=cdBK0-9gsFA",
-    "https://www.youtube.com/watch?v=mwKJfNYwvm8",
-]
+from tests.common import (
+    VIDEO_URLS_NOT_SUPPORTS_ONLY_AUDIO,
+    VIDEO_URLS_SUPPORTS_ONLY_AUDIO,
+    VIDEO_URLS_UNITED,
+    VIDEOS_WITH_VINFO_UNITED,
+)
+from tests.fixture_types import (
+    TmpFile,
+    TmpFileRequest,
+)
+from vk_extract_audio_bot.utils.downloader import (
+    DownloadedFile,
+    Downloader,
+    Type,
+)
 
 
-def is_exists_and_file(filepath: File) -> bool:
-    """TODO.
-
-    Args:
-    ----
-        filepath (File): _description_
-
-    Returns:
-    -------
-        _type_: _description_
-
+@pytest.mark.parametrize(("video_url", "video_info"), VIDEOS_WITH_VINFO_UNITED)
+def test_get_info_works(video_url, video_info):
     """
-    np = NewPath(f"{filepath}")
-    return np.exists() and np.is_file()    # pylint: disable=no-member
+    ## Входные данные:
+    1. `video_url` - URL-ссылка на действительное видео.
+
+    ## Описание:
+        Функция не падает с ошибкой.
+
+    ## Ожидание:
+        Данные о видео получены.
+
+    ### P.S.
+    Следует добавить хотя бы ожидаемые данные,
+    но для экономии времени будем считать, что всё работает как надо,
+    иначе бы завалились все тесты ниже.
+    """
+    assert video_info == Downloader.get_video_info(video_url)
 
 
-class TestYT:
-    """TODO."""
+@pytest.mark.parametrize("video_url", VIDEO_URLS_UNITED)
+def test_download_video_dir_instead_file(video_url, tmp_path):
+    """
+    ## Входные данные:
+    1. `video_url` - URL-ссылка на действительное видео.
+    1. `tmp_path` - существующая директория
 
-    def test_nop(self) -> None:
-        """TODO."""
+    ## Описание:
+    Передача директории в качестве пути для выходного файла.
 
-    class TestVideoInfo:
-        """TODO."""
+    ## Ожидание:
+        Ошибка валидации входных данных.
+    """
+    with pytest.raises(ValueError):
+        Downloader.download_video(video_url, tmp_path)
 
-        def test_get_info_works(self) -> None:
-            """TODO."""
-            for url in PUBLIC_URLS:
-                Downloader.get_video_info(url)
 
-    class TestLinks:
-        """TODO."""
+@pytest.mark.parametrize(
+    "tmp_file",
+    [TmpFileRequest(), TmpFileRequest(create=False)],
+    indirect=True,
+)
+class TestDownloader:
+    """
+    Тестирование класса `Downloader`.
 
-        class TestDownloadOnlyVideo:
-            """TODO."""
+    Для каждого теста параметризуется 2 варианта пути для выходного файла:
+    1. Файл уже создан
+    2. Файл ещё не создан
+    """
 
-            def test_downloads(self) -> None:
-                """TODO."""
-                for url in PUBLIC_URLS:
-                    to = File(
-                        dirpath=TEST_DIR,
-                        filename=pathvalidate.sanitize_filename(url),
-                    )
-                    dlf = Downloader.download_video(url, to)
-                    assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(Path(dlf.filepath.get_str()))
+    @pytest.mark.parametrize(
+        "video_url",
+        VIDEO_URLS_NOT_SUPPORTS_ONLY_AUDIO,
+    )
+    def test_download_audio_fail(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео.
+        1. `tmp_file` - файл.
 
-            def test_is_real_video(self) -> None:
-                """TODO."""
+        ## Описание:
+        Cкачать отдельно аудио дорожку из видео,
+        которые не предоставляют такой возможности.
 
-        class TestDownloadOnlyAudio:
-            """TODO."""
+        ## Ожидание:
+        Ошибка во время попытки скачать аудио.
+        """
+        with pytest.raises(Exception):
+            Downloader.download_audio(video_url, tmp_file.file)
 
-            def test_downloads(self) -> None:
-                """TODO."""
-                for url in PUBLIC_URLS:
-                    to = File(
-                        dirpath=TEST_DIR,
-                        filename=pathvalidate.sanitize_filename(url),
-                    )
-                    dlf = Downloader.download_audio(url, to)
-                    assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(Path(dlf.filepath.get_str()))
+    @pytest.mark.parametrize("video_url", VIDEO_URLS_UNITED)
+    def test_download_video(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео.
+        1. `tmp_file` - файл.
 
-            def test_is_real_audio(self) -> None:
-                """TODO."""
+        ## Описание:
+        Скачивание видео.
 
-        class TestDownloadAny:
-            """TODO."""
+        ## Ожидание:
+        Видео скачалось, файл имеет ненулевой размер и формат mp4.
 
-            def test_first_audio(self) -> None:
-                """Must be only audio."""
-                for url in PUBLIC_URLS:
-                    to = File(
-                        dirpath=TEST_DIR,
-                        filename=pathvalidate.sanitize_filename(url),
-                    )
-                    dlf = Downloader.download_any(
-                        url,
-                        to,
-                        DownloadedFile.Type.AUDIO,
-                    )
-                    assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(Path(dlf.filepath.get_str()))
+        ### P.S.
+        Проверку формата сделаю позже, т.к. пока всё работает,
+        иначе бы тесты `test_extractor.py` завершались бы ошибкой.
+        """
+        dl_file = Downloader.download_video(video_url, tmp_file.file)
+        assert (
+            ffmpeg.probe(str(dl_file.file),
+                                    )["streams"][0]["codec_type"] == "video"
+        )
 
-            def test_first_video(self) -> None:
-                """Must be only video."""
-                for url in PUBLIC_URLS:
-                    to = File(
-                        dirpath=TEST_DIR,
-                        filename=pathvalidate.sanitize_filename(url),
-                    )
-                    dlf = Downloader.download_any(
-                        url,
-                        to,
-                        DownloadedFile.Type.VIDEO,
-                    )
-                    assert is_exists_and_file(dlf.filepath)
-                    Path.unlink(Path(dlf.filepath.get_str()))
+    @pytest.mark.parametrize(
+        "video_url",
+        VIDEO_URLS_SUPPORTS_ONLY_AUDIO,
+    )
+    def test_download_audio(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео с возможностью
+        отдельно скачать аудио-дорожку.
+        1. `tmp_file` - файл.
+
+        ## Описание:
+        Скачивание только аудио дорожки из видео которые это поддерживают.
+
+        ## Ожидание:
+        Выходной файл имеет только аудио дорожку.
+
+        ### P.S.
+        Здесь тоже только проверка на размер файла, но оно работает,
+        причины те же, что и тестом выше.
+        """
+        dl_file = Downloader.download_audio(video_url, tmp_file.file)
+        assert (
+            ffmpeg.probe(str(dl_file.file),
+                                    )["streams"][0]["codec_type"] == "audio"
+        )
+
+    @pytest.mark.parametrize("video_url", VIDEO_URLS_SUPPORTS_ONLY_AUDIO)
+    def test_try_first_audio_support(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+    ):
+        """
+        ## Описание:
+        Проверка функции `Downloader.download_any` на скачивание
+        с приоритетом только аудио-дорожки.
+
+        ## Ожидание:
+        Скачается только аудио-дорожка.
+
+        ## Входные данные:
+        - URL-ссылка на видео с поддержкой скачивания только аудио-дорожки.
+        """
+        dl_file = Downloader.download_any(video_url, tmp_file.file, Type.AUDIO)
+        ffprobe_res = ffmpeg.probe(str(dl_file.file))
+        assert len(ffprobe_res["streams"]) == 1
+        assert ffprobe_res["streams"][0]["codec_type"] == "audio"
+
+    @pytest.mark.parametrize("video_url", VIDEO_URLS_UNITED)
+    def test_try_first_video(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео.
+        1. `tmp_file` - файл.
+
+        ## Описание:
+        Скачать либо видео целиком, либо только аудио-дорожку
+        с приоритетом видео.
+
+        ## Ожидание:
+        Непустой выходной файл - только видео.
+
+        ### P.S.
+        Здесь тоже только проверка на размер файла, но оно работает,
+        причины те же, что и тестом выше.
+        """
+        dl_file = Downloader.download_any(
+            video_url, tmp_file.file, try_first=DownloadedFile.Type.VIDEO,
+        )
+        assert (
+            ffmpeg.probe(str(dl_file.file),
+                                    )["streams"][0]["codec_type"] == "video"
+        )

@@ -1,58 +1,162 @@
-"""TODO."""
+# pylint: disable=W0621,
+import ffmpeg
+import pytest
+from loguru import logger
 
-import shutil
-from pathlib import Path
+from vk_extract_audio_bot.utils.downloader import (
+    DownloadedFile,
+    VideoInfo,
+)
+from vk_extract_audio_bot.utils.extractor import (
+    AudioExtractor,
+)
 
-import pathvalidate
-from pydantic import DirectoryPath
-
-from vk_extract_audio_from_video_bot.services.extra import File
-from vk_extract_audio_from_video_bot.services.extractor import AudioExtractor
-
-TEST_DIR = DirectoryPath("./tests/.temp")
-shutil.rmtree(TEST_DIR, ignore_errors=True)
-TEST_DIR.mkdir(exist_ok=True)    # pylint: disable=no-member
-
-VK_URLS = [
-    "https://vk.com/video202745946_456239031?list=5741411ffee8b2bea4",
-]
-
-YT_URLS = [
-    "https://www.youtube.com/watch?v=cdBK0-9gsFA",
-    "https://www.youtube.com/watch?v=mwKJfNYwvm8",
-]
-
-RT_URLS = [
-    "https://rutube.ru/video/e7929fa8fe0baeff21688ef498c142a4/",
-]
-
-ALL_URLS = [
-    *VK_URLS,
-    *YT_URLS,
-    *RT_URLS,
-]
+from .common import (
+    VIDEO_URLS_NOT_SUPPORTS_ONLY_AUDIO,
+    VIDEO_URLS_SUPPORTS_ONLY_AUDIO,
+    VIDEO_URLS_UNITED,
+)
+from .conftest import tmp_file
+from .fixture_types import (
+    TmpFile,
+    TmpFileRequest,
+)
 
 
+mp3_file = tmp_file
+"""
+    Фикстура-дубль `tmp_file`, чтобы можно было одновременно использовать
+    2 временных файла в одном тесте без написания лишнего кода.
+"""
+
+
+@pytest.mark.parametrize("video_url", VIDEO_URLS_UNITED)
+def test_extract_from_url_temp_file_eq_target_fail(
+    video_url,
+    tmp_file: TmpFile,
+):
+    """
+    ## Входные данные:
+    1. `video_url` - URL-ссылка на действительное видео.
+    1. `tmp_file` - файл.
+
+    ## Описание:
+    Попытка получить аудио-файл, передав один файл в качестве временного
+    и итогового.
+
+    ## Ожидание:
+    Ошибка валидации данных.
+    """
+    file = tmp_file.file
+    with pytest.raises(ValueError):
+        AudioExtractor.extract_from_url(video_url, file, file)
+
+
+def test_extract_from_file_dl_file_eq_target_fail(
+    tmp_file: TmpFile,
+):
+    """
+    ## Входные данные:
+    1. `tmp_file` - файл.
+
+    ## Описание:
+    Попытка получить аудио-файл, передав файл с видео в качестве итогового.
+
+    ## Ожидание:
+    Ошибка валидации данных.
+    """
+    target_file = tmp_file.file
+    dl_file = DownloadedFile(
+        original_info=VideoInfo(
+            url="http://good.url",
+            video_id="42",
+            extractor="42",
+            author="42",
+            title="42",
+            duration=42.0,
+        ),
+        filetype=DownloadedFile.Type.VIDEO,
+        file=tmp_file.file,
+    )
+    with pytest.raises(ValueError):
+        AudioExtractor.extract_from_file(dl_file, target_file)
+
+
+@pytest.mark.parametrize(
+    "tmp_file", [
+        TmpFileRequest(create=False, suffix=".mp4"),
+        TmpFileRequest(suffix=".mp4"),
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "mp3_file", [
+        TmpFileRequest(),
+        TmpFileRequest(suffix=".mp3"),
+        TmpFileRequest(create=False, suffix=".mp3"),
+    ],
+    indirect=True,
+)
 class TestExtractor:
-    """TODO."""
+    """Тестирование класса `AudioExtractor` c валидными данными."""
 
-    def test_free_pass(self) -> None:
-        """TODO."""
+    @pytest.mark.parametrize(
+        "video_url",
+        VIDEO_URLS_NOT_SUPPORTS_ONLY_AUDIO,
+    )
+    def test_extract_from_url_download_video(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+        mp3_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео.
+        1. `tmp_file` - файл.
+        1. `mp3_file` - файл, отличный по пути от `tmp_file`.
 
-    class TestUrl:
-        """TODO."""
+        ## Описание:
+        Извлечение аудио-файл из видео по URL-ссылке,
+        через которую нельзя скачать аудио-файл отдельно от видео.
 
-        def test_extract_audio(self) -> None:
-            """TODO."""
-            for url in ALL_URLS:
-                temp = File(
-                    dirpath=TEST_DIR,
-                    filename=f"video_{pathvalidate.sanitize_filename(url)}",
-                )
-                to = File(
-                    dirpath=TEST_DIR,
-                    filename=f"audio_{pathvalidate.sanitize_filename(url)}.mp3",
-                )
-                af = AudioExtractor.extract_from_url(url, temp, to)
-                assert af.audiofile.as_filepath().exists()
-                Path.unlink(Path(af.audiofile.get_str()))
+        ## Ожидание:
+        Аудио-файл формата MP3.
+        """
+        af = AudioExtractor.extract_from_url(
+            video_url,
+            tmp_file.file,
+            mp3_file.file,
+        )
+        assert ffmpeg.probe(af.audiofile)["streams"][0]["codec_name"] == "mp3"
+
+    @pytest.mark.parametrize(
+        "video_url",
+        VIDEO_URLS_SUPPORTS_ONLY_AUDIO,
+    )
+    def test_extract_from_url_audio_only(
+        self,
+        video_url,
+        tmp_file: TmpFile,
+        mp3_file: TmpFile,
+    ):
+        """
+        ## Входные данные:
+        1. `video_url` - URL-ссылка на действительное видео.
+        1. `tmp_file` - файл.
+        1. `mp3_file` - файл, отличный по пути от `tmp_file`.
+
+        ## Описание:
+        Извлечение аудио-файл из видео по URL-ссылке,
+        через которую также можно скачать аудио-файл отдельно от видео.
+
+        ## Ожидание:
+        Аудио-файл формата mp3
+        """
+        af = AudioExtractor.extract_from_url(
+            video_url,
+            tmp_file.file,
+            mp3_file.file,
+        )
+        logger.debug(ffmpeg.probe(af.audiofile))
+        assert ffmpeg.probe(af.audiofile)["streams"][0]["codec_name"] == "mp3"

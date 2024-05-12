@@ -1,4 +1,7 @@
 .*
+data/
+temp/
+config.*
 !.gitea
 !.dockerignore
 !.pylintrc
@@ -6,7 +9,6 @@
 !.style.yapf
 !.ruff.toml
 !.pre-commit-config.yaml
-
 
 # ---> Python
 # Byte-compiled / optimized / DLL files

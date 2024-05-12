@@ -1,3 +1,7 @@
+# Fails on: 136:50: default=f"sqlite:///{_BotWorkDirs().DIRS["data"]}/database.db",
+*/settings.py
+*/test_settings.py
+
 # ---> Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
