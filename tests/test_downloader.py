@@ -116,8 +116,9 @@ class TestDownloader:
         """
         dl_file = Downloader.download_video(video_url, tmp_file.file)
         assert (
-            ffmpeg.probe(str(dl_file.file),
-                                    )["streams"][0]["codec_type"] == "video"
+            ffmpeg.probe(
+                str(dl_file.file),
+            )["streams"][0]["codec_type"] == "video"
         )
 
     @pytest.mark.parametrize(
@@ -147,8 +148,9 @@ class TestDownloader:
         """
         dl_file = Downloader.download_audio(video_url, tmp_file.file)
         assert (
-            ffmpeg.probe(str(dl_file.file),
-                                    )["streams"][0]["codec_type"] == "audio"
+            ffmpeg.probe(
+                str(dl_file.file),
+            )["streams"][0]["codec_type"] == "audio"
         )
 
     @pytest.mark.parametrize("video_url", VIDEO_URLS_SUPPORTS_ONLY_AUDIO)
@@ -199,6 +201,7 @@ class TestDownloader:
             video_url, tmp_file.file, try_first=DownloadedFile.Type.VIDEO,
         )
         assert (
-            ffmpeg.probe(str(dl_file.file),
-                                    )["streams"][0]["codec_type"] == "video"
+            ffmpeg.probe(
+                str(dl_file.file),
+            )["streams"][0]["codec_type"] == "video"
         )

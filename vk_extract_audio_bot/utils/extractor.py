@@ -44,9 +44,9 @@ class AudioExtractor:
             raise ValueError(msg)
         any_file = None
         if temp is None:
-            with tempfile.NamedTemporaryFile(
-                mode="wb", delete_on_close=False, dir=tempfile.gettempdir(),
-            ) as temp_file:
+            with tempfile.NamedTemporaryFile(mode="wb", delete_on_close=False,
+                                             dir=tempfile.gettempdir(),
+                                             ) as temp_file:
                 temp_file.close()
                 any_file = Downloader.download_any(
                     url,
@@ -55,13 +55,11 @@ class AudioExtractor:
                 )
         else:
             any_file = Downloader.download_any(
-                    url,
-                    temp_file,
-                    DownloadedFile.Type.AUDIO,
-                )
+                url,
+                temp_file,
+                DownloadedFile.Type.AUDIO,
+            )
         return AudioExtractor.extract_from_file(any_file, to)
-
-
 
     @staticmethod
     @pydantic.validate_call
