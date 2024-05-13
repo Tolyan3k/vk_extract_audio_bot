@@ -634,7 +634,7 @@ class ConfigYaml(BaseModel):
 
     @model_validator(mode="after")
     def try_unite_users_with_same_id(self) -> Self:
-        users_groups: list[list[ConfigYamlUser]] = [
+        users_grouped_by_id: list[list[ConfigYamlUser]] = [
             list(g)
             for _, g
             in itertools.groupby(
@@ -642,14 +642,14 @@ class ConfigYaml(BaseModel):
                 lambda u: u.id,
             )
         ]
-        if len(users_groups) == len(self.users):
+        if len(users_grouped_by_id) == len(self.users):
             return self
-        users_united = []
-        for users in users_groups:
+        users_all_in_one_per_id = []
+        for users in users_grouped_by_id:
             if len(users) == 1:
-                users_united.extend(users)
+                users_all_in_one_per_id.extend(users)
                 continue
-            user_consistent = {}
+            user_all_in_one = {}
             for u1, u2 in itertools.combinations(users, 2):
                 # ruff: noqa: PLW2901
                 u1 = u1.model_dump(mode="json", by_alias=True)
@@ -658,9 +658,9 @@ class ConfigYaml(BaseModel):
                     if all([u1[key], u2[key]]) and u1[key] != u2[key]:
                         msg = f"Users {u1} and {u2} have different values in '{key}'"
                         raise ValueError(msg)
-                    user_consistent[key] = (u1[key], u2[key])[u2[key] is not None]
-            users_united.append(ConfigYamlUser.model_validate(user_consistent))
-        self.users = users_united
+                    user_all_in_one[key] = (u1[key], u2[key])[u2[key] is not None]
+            users_all_in_one_per_id.append(ConfigYamlUser.model_validate(user_all_in_one))
+        self.users = users_all_in_one_per_id
         return self
 
     @model_validator(mode="after")

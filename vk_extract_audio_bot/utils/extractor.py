@@ -1,3 +1,5 @@
+import tempfile
+
 import ffmpeg
 import pydantic
 from moviepy.editor import (
@@ -34,18 +36,32 @@ class AudioExtractor:
     @pydantic.validate_call
     def extract_from_url(
         url: AnyUrl,
-        temp: NewPath | FilePath,
         to: NewPath | FilePath,
+        temp: NewPath | FilePath | None = None,
     ) -> AudioFile:
         if temp == to:
             msg = "Temp file path and target file path must differ"
             raise ValueError(msg)
-        any_f = Downloader.download_any(
-            url,
-            temp,
-            DownloadedFile.Type.AUDIO,
-        )
-        return AudioExtractor.extract_from_file(any_f, to)
+        any_file = None
+        if temp is None:
+            with tempfile.NamedTemporaryFile(
+                mode="wb", delete_on_close=False, dir=tempfile.gettempdir(),
+            ) as temp_file:
+                temp_file.close()
+                any_file = Downloader.download_any(
+                    url,
+                    temp_file,
+                    DownloadedFile.Type.AUDIO,
+                )
+        else:
+            any_file = Downloader.download_any(
+                    url,
+                    temp_file,
+                    DownloadedFile.Type.AUDIO,
+                )
+        return AudioExtractor.extract_from_file(any_file, to)
+
+
 
     @staticmethod
     @pydantic.validate_call
@@ -61,6 +77,9 @@ class AudioExtractor:
                 " paths"
             )
             raise ValueError(msg)
+        if not AudioExtractor._has_audio(f.file):
+            msg = "Downloaded video have no audiotrack."
+            raise ValueError(msg)
         match f.filetype:
             case DownloadedFile.Type.AUDIO:
                 a_clip = AudioFileClip(str(f.file))
@@ -68,8 +87,8 @@ class AudioExtractor:
             case DownloadedFile.Type.VIDEO:
                 AudioExtractor._extract_audio_from_video(f.file, to)
             case _:    # pytest-cov: no cover
-                # pylint: disable=W0133
-                ValueError()
+                msg = "Неподдерживаемый файл"
+                raise ValueError(msg)
         return AudioFile(original=f, audiofile=to)
 
     @staticmethod
@@ -87,10 +106,10 @@ class AudioExtractor:
     @staticmethod
     @pydantic.validate_call
     def _extract_audio_from_video(
-        vid_f: FilePath,
+        video_file: FilePath,
         to: NewPath | FilePath,
     ) -> None:
-        v_clip = VideoFileClip(str(vid_f.absolute()))
+        v_clip = VideoFileClip(str(video_file.absolute()))
         AudioExtractor._write_audioclip_to_mp3(v_clip.audio, to)
         v_clip.close()
 

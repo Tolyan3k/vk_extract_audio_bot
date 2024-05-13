@@ -74,11 +74,11 @@ class Downloader:
         to: NewPath | FilePath,
         try_first: DownloadedFile.Type,
     ) -> DownloadedFile:
-        order = [Type.AUDIO, Type.VIDEO]
-        if order[0] != try_first:
-            order.reverse()
+        download_order = [Type.AUDIO, Type.VIDEO]
+        if download_order[0] != try_first:
+            download_order.reverse()
         errors = []
-        for media_type in order:
+        for media_type in download_order:
             # ruff: noqa: PERF203
             try:
                 return Downloader._download(info, to, media_type)
@@ -112,7 +112,7 @@ class Downloader:
     ) -> DownloadedFile:
         # ruff: noqa: ARG004
         if isinstance(info, VideoInfo):
-            return Downloader._download_vinfo(info, to, filetype)
+            return Downloader._download_video_info(info, to, filetype)
         return Downloader._download_url(info, to, filetype)
 
     @staticmethod
@@ -121,17 +121,17 @@ class Downloader:
         to: NewPath | FilePath,
         filetype: Type,
     ) -> DownloadedFile:
-        logger.info(locals())
+        logger.debug(locals())
         video_info = Downloader.get_video_info(str(url))
-        return Downloader._download_vinfo(video_info, to, filetype)
+        return Downloader._download_video_info(video_info, to, filetype)
 
     @staticmethod
-    def _download_vinfo(
+    def _download_video_info(
         video_info: VideoInfo,
         to: NewPath | FilePath,
         filetype: Type,
     ) -> DownloadedFile:
-        logger.info(locals())
+        logger.debug(locals())
         ydl_opts = {
             "format": str(filetype),
             "outtmpl": f"{to.absolute()}",
