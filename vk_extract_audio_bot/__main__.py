@@ -22,8 +22,8 @@ for bot_dir in CONFIG.BOT_WORK_DIRS.values():
 
 logger.info("Инициализация бота и роутеров")
 bot = SimpleLongPollBot(
-    tokens=[CONFIG.VK_ARCHIVE_GROUP_TOKEN],
-    group_id=CONFIG.VK_ARCHIVE_GROUP_ID,
+    tokens=[CONFIG.VK_MAIN_GROUP_TOKEN],
+    group_id=CONFIG.VK_MAIN_GROUP_ID,
 )
 for router in ROUTERS:
     bot.dispatcher.add_router(router)
